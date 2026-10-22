@@ -1,1 +1,127 @@
 @import 'tailwindcss';
+
+/*
+ * TestPilot — "AI Testing Control Room"
+ * Dark-first, technical. Charcoal surfaces, hairline borders, one violet/blue
+ * accent for AI and focus, semantic colors reserved for test outcomes.
+ */
+@theme {
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Surfaces, from back to front */
+  --color-canvas: #0a0b0d;
+  --color-surface: #0f1013;
+  --color-raised: #15161a;
+  --color-overlay: #1b1d22;
+
+  /* Lines */
+  --color-line: #212329;
+  --color-line-strong: #2d3038;
+
+  /* Text */
+  --color-fg: #e8e9ed;
+  --color-fg-muted: #9a9fab;
+  --color-fg-subtle: #646976;
+
+  /* AI accent */
+  --color-accent: #9b8afb;
+  --color-accent-strong: #7f6cf5;
+  --color-accent-blue: #5b8cff;
+
+  /* Outcomes */
+  --color-pass: #3ecf8e;
+  --color-fail: #f25f5c;
+  --color-warn: #f2a93b;
+  --color-skip: #7b818d;
+  --color-run: #5b9dff;
+
+  --radius-panel: 10px;
+
+  --animate-pulse-soft: pulse-soft 1.6s ease-in-out infinite;
+  --animate-scan: scan 2.4s linear infinite;
+  --animate-fade-in: fade-in 0.25s ease-out;
+
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+  @keyframes scan {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(2px); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body {
+    background: var(--color-canvas);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-feature-settings: 'ss01', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 35%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--color-accent) 70%, transparent);
+    outline-offset: 2px;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+}
+
+@layer components {
+  /* A bordered panel: the basic container of the control room. */
+  .panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-panel);
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .panel-title {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-fg-subtle);
+  }
+
+  /* Faint engineering grid used behind hero and empty states. */
+  .grid-backdrop {
+    background-image:
+      linear-gradient(to right, color-mix(in oklab, var(--color-line) 55%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--color-line) 55%, transparent) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+}
