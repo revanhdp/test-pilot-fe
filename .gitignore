@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Nuxt build and generated files
+.output/
+.nuxt/
+.nitro/
+.cache/
+.data/
+# `nuxt generate` creates `dist` as a symlink, so no trailing slash
+/dist
+
+# Environment: only an example file would be committed
+.env
+.env.*
+!.env.example
+
+# Logs, OS and editor files
+*.log
+.DS_Store
+.idea/
+.vscode/

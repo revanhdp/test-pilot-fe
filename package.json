@@ -1,0 +1,33 @@
+{
+  "name": "test-pilot-fe",
+  "version": "0.1.0",
+  "description": "TestPilot web app — Nuxt",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "nuxt prepare",
+    "dev": "nuxt dev --port 4000",
+    "build": "nuxt generate",
+    "preview": "nuxt preview --port 4000",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@lucide/vue": "^1.60.0",
+    "nuxt": "^4.6.2",
+    "vue": "^3.5.44",
+    "vue-router": "^5.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^24.19.2",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "vue-tsc": "^3.3.13"
+  },
+  "packageManager": "pnpm@11.18.0",
+  "engines": {
+    "node": ">=22"
+  }
+}
