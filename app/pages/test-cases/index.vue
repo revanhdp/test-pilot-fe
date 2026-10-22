@@ -62,7 +62,6 @@ const newTestLink = computed(() => ({ path: '/test-cases/new', query: suiteId.va
 <template>
   <div>
     <AppPageHeader title="Test cases" :eyebrow="current?.name">
-      Ordered browser steps with assertions. Active cases run in suite and project runs.
       <template v-if="current" #actions>
         <UiButton :disabled="!runnableCount || !data?.environments.length" @click="runModal = true">
           <Play /> Run {{ selectedSuite ? 'suite' : 'all' }}
@@ -80,20 +79,20 @@ const newTestLink = computed(() => ({ path: '/test-cases/new', query: suiteId.va
 
     <div v-else-if="data" class="grid items-start gap-6 lg:grid-cols-[230px_minmax(0,1fr)]">
       <!-- Suites -->
-      <nav class="panel p-1.5" aria-label="Suites">
+      <nav class="lg:pt-1" aria-label="Suites">
         <button
           type="button"
-          :class="['flex w-full items-center rounded-md px-2.5 py-1.5 text-[13px]', !suiteId ? 'bg-overlay text-fg' : 'text-fg-muted hover:bg-overlay/60 hover:text-fg']"
+          :class="['flex w-full items-center rounded-[4px] px-2.5 py-1.5 text-[13px]', !suiteId ? 'bg-raised font-medium text-fg' : 'text-fg-muted hover:bg-raised/60 hover:text-fg']"
           @click="suiteId = null"
         >
           All tests
           <span class="ml-auto font-mono text-[11px] text-fg-subtle">{{ data.testCases.length }}</span>
         </button>
-        <p class="eyebrow mt-3 mb-1 px-2.5">Suites</p>
+        <p class="caption mt-4 mb-1 px-2.5">Suites</p>
         <div v-for="suite in data.suites" :key="suite.id" class="group relative">
           <button
             type="button"
-            :class="['flex w-full items-center rounded-md px-2.5 py-1.5 text-left text-[13px]', suiteId === suite.id ? 'bg-overlay text-fg' : 'text-fg-muted hover:bg-overlay/60 hover:text-fg']"
+            :class="['flex w-full items-center rounded-[4px] px-2.5 py-1.5 text-left text-[13px]', suiteId === suite.id ? 'bg-raised font-medium text-fg' : 'text-fg-muted hover:bg-raised/60 hover:text-fg']"
             @click="suiteId = suite.id"
           >
             <span class="min-w-0 flex-1 truncate">{{ suite.name }}</span>
@@ -101,14 +100,14 @@ const newTestLink = computed(() => ({ path: '/test-cases/new', query: suiteId.va
           </button>
           <button
             type="button"
-            class="absolute top-1/2 right-1.5 hidden -translate-y-1/2 rounded p-1 text-fg-subtle group-hover:block hover:text-fg"
+            class="absolute top-1/2 right-1 hidden -translate-y-1/2 rounded-[4px] p-1.5 text-fg-subtle group-focus-within:block group-hover:block hover:text-fg"
             :aria-label="`Rename ${suite.name}`"
             @click="openSuite(suite)"
           >
             <Pencil class="size-3" />
           </button>
         </div>
-        <button type="button" class="mt-1 flex w-full items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs text-fg-subtle hover:bg-overlay/60 hover:text-fg" @click="openSuite(null)">
+        <button type="button" class="mt-1 flex w-full items-center gap-1.5 rounded-[4px] px-2.5 py-1.5 text-xs text-fg-subtle hover:bg-raised/60 hover:text-fg" @click="openSuite(null)">
           <Plus class="size-3.5" /> New suite
         </button>
       </nav>
@@ -154,18 +153,18 @@ const newTestLink = computed(() => ({ path: '/test-cases/new', query: suiteId.va
                 @click="navigateTo(`/test-cases/${tc.id}`)"
               >
                 <td class="py-2.5 pl-4">
-                  <RunStatusIcon v-if="tc.results[0]" :status="tc.results[0].status" class="size-3.5" />
-                  <span v-else class="block size-3.5 rounded-full border border-dashed border-line-strong" title="Never run" />
+                  <RunStatusIcon v-if="tc.results[0]" :status="tc.results[0].status" size="sm" />
+                  <span v-else class="block size-3.5 text-center font-mono text-xs leading-3.5 text-fg-subtle" title="Never run">·</span>
                 </td>
-                <td class="px-2 py-2.5 font-mono text-xs text-fg-muted">{{ tcKey(tc.number) }}</td>
+                <td class="px-2 py-2.5 font-mono text-xs whitespace-nowrap text-fg-muted">{{ tcKey(tc.number) }}</td>
                 <td class="max-w-0 w-full px-2 py-2.5">
                   <div class="flex items-center gap-2">
                     <NuxtLink :to="`/test-cases/${tc.id}`" class="truncate font-medium text-fg" @click.stop>{{ tc.title }}</NuxtLink>
-                    <UiBadge v-if="tc.status !== 'ACTIVE'" :tone="tc.status === 'DRAFT' ? 'accent' : 'neutral'">{{ tc.status === 'DRAFT' ? 'Draft' : 'Archived' }}</UiBadge>
+                    <UiBadge v-if="tc.status !== 'ACTIVE'">{{ tc.status === 'DRAFT' ? 'Draft' : 'Archived' }}</UiBadge>
                   </div>
                   <p v-if="!suiteId" class="mt-0.5 truncate text-xs text-fg-subtle">{{ tc.suite.name }}</p>
                 </td>
-                <td class="px-2 py-2.5"><UiBadge :tone="PRIORITY_META[tc.priority].tone">{{ PRIORITY_META[tc.priority].label }}</UiBadge></td>
+                <td class="px-2 py-2.5"><TestCasePriority :priority="tc.priority" /></td>
                 <td class="px-2 py-2.5 text-xs whitespace-nowrap text-fg-muted">{{ CATEGORY_LABELS[tc.category] }}</td>
                 <td class="px-2 py-2.5 text-right font-mono text-xs text-fg-muted tabular-nums">{{ tc._count.steps }}</td>
                 <td class="px-4 py-2.5 text-right text-xs whitespace-nowrap text-fg-subtle">{{ formatRelative(tc.results[0]?.finishedAt) }}</td>

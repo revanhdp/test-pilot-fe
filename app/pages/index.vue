@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ArrowRight, Braces, Bug, Camera, FileWarning, Globe, Play, Radar, ShieldCheck } from '@lucide/vue'
+import { ArrowRight } from '@lucide/vue'
+import { MotionConfig, motion, stagger, useMotionValueEvent, useScroll } from 'motion-v'
 
 definePageMeta({ layout: false, public: true })
 useHead({ title: 'TestPilot AI — Let AI test your software' })
@@ -7,123 +8,185 @@ useHead({ title: 'TestPilot AI — Let AI test your software' })
 const { user } = useAuth()
 const startTo = computed(() => (user.value ? '/dashboard' : '/register'))
 
-const pipeline = [
-  { icon: Radar, title: 'AI agent', body: 'Explores the app toward a goal you set, using only approved browser tools.' },
-  { icon: Globe, title: 'Real browser', body: 'Playwright drives a real Chromium browser against your environment.' },
-  { icon: Play, title: 'Test', body: 'Structured steps with assertions. The engine — not the model — decides pass or fail.' },
-  { icon: FileWarning, title: 'Failure', body: 'Screenshot, failing step, expected vs actual — captured automatically.' },
-  { icon: Bug, title: 'Bug report', body: 'Evidence and analysis become an editable, reproducible report.' },
+/** The departure board in the headline; the first word is the one the sentence is about. */
+const FLAP_WORDS = ['software.', 'checkout.', 'sign-in.', 'search.', 'payments.']
+
+/** What the engine does today, as a datasheet. */
+const SPEC = [
+  { term: 'Verdict', detail: 'Decided by Playwright assertions in a real browser. A model never decides pass or fail.' },
+  { term: 'Browser', detail: 'Chromium. One browser per run and a fresh context, with its own cookies and storage, for every test.' },
+  { term: 'Steps', detail: 'Navigate, click, fill, select, check, uncheck, press and wait, plus five assertions: visible, hidden, text, URL and title.' },
+  { term: 'Locators', detail: 'Role and accessible name, label, text, placeholder, test id or CSS.' },
+  { term: 'Evidence', detail: 'A screenshot of the final state, the final URL and page title, the failing step and a timing for every step.' },
+  { term: 'Scope', detail: 'Tests only open pages on the environment’s own origin. An HTTP 4xx/5xx fails a navigation unless allowed.' },
+  { term: 'Limits', detail: '10 s per step, 2 min per test, 100 steps per test.' },
 ]
 
-const features = [
-  {
-    icon: Braces,
-    title: 'Structured actions, never generated code',
-    body: 'Every step is validated JSON — navigate, click, fill, assert. Nothing an LLM writes is ever eval’d.',
-  },
-  {
-    icon: Camera,
-    title: 'Evidence on every result',
-    body: 'Each test runs in an isolated browser context and ends with a screenshot, final URL and per-step timings.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Scoped to your environment',
-    body: 'Tests can only open pages on the environment’s origin, with timeouts and step limits on every run.',
-  },
-]
+// The sticky nav gets its hairline once the page has scrolled.
+const scrolled = ref(false)
+const { scrollY } = useScroll()
+useMotionValueEvent(scrollY, 'change', (y) => (scrolled.value = y > 8))
+
+const EASE_OUT = [0.22, 1, 0.36, 1] as const
+const rise = {
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_OUT } },
+}
+const heroSequence = { hidden: {}, visible: { transition: { delayChildren: stagger(0.09) } } }
+const specSequence = { hidden: {}, visible: { transition: { delayChildren: stagger(0.05) } } }
 </script>
 
 <template>
-  <div class="min-h-dvh overflow-x-hidden bg-canvas">
-    <!-- Nav -->
-    <header class="relative z-20 mx-auto flex max-w-6xl items-center gap-6 px-6 py-5">
-      <NuxtLink to="/"><AppLogo /></NuxtLink>
-      <nav class="hidden gap-6 text-[13px] text-fg-muted md:flex">
-        <a href="#how-it-works" class="hover:text-fg">How it works</a>
-        <a href="#features" class="hover:text-fg">Features</a>
-      </nav>
-      <div class="ml-auto flex items-center gap-2">
-        <UiButton v-if="!user" variant="ghost" to="/login">Sign in</UiButton>
-        <UiButton variant="primary" :to="startTo">{{ user ? 'Open dashboard' : 'Start Testing' }}</UiButton>
-      </div>
-    </header>
+  <MotionConfig reduced-motion="user">
+    <div class="min-h-dvh overflow-x-clip bg-canvas">
+      <!-- Nav -->
+      <header :class="['sticky top-0 z-30 border-b bg-canvas transition-colors duration-300', scrolled ? 'border-line' : 'border-transparent']">
+        <div class="mx-auto flex h-16 max-w-[1200px] items-center gap-8 px-6">
+          <NuxtLink to="/" class="rounded-sm"><AppLogo /></NuxtLink>
+          <nav class="hidden gap-6 text-[13px] text-fg-muted md:flex">
+            <a href="#how-it-works" class="hover:text-fg">How it works</a>
+            <a href="#bug-hunt" class="hover:text-fg">Bug hunt</a>
+            <a href="#steps" class="hover:text-fg">Steps</a>
+            <a href="#engine" class="hover:text-fg">The engine</a>
+          </nav>
+          <div class="ml-auto flex items-center gap-2">
+            <UiButton v-if="!user" variant="ghost" to="/login">Sign in</UiButton>
+            <UiButton variant="primary" :to="startTo">{{ user ? 'Open dashboard' : 'Start testing' }}</UiButton>
+          </div>
+        </div>
+      </header>
 
-    <!-- Hero -->
-    <section class="relative">
-      <div class="grid-backdrop pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_70%_60%_at_60%_30%,black,transparent)]" />
-      <div class="pointer-events-none absolute top-[-10%] right-[5%] h-[520px] w-[620px] rounded-full bg-accent-strong/20 blur-[140px]" />
-      <div class="pointer-events-none absolute top-[30%] right-[30%] h-[300px] w-[400px] rounded-full bg-accent-blue/10 blur-[120px]" />
-
-      <div class="relative mx-auto grid max-w-6xl items-center gap-14 px-6 pt-10 pb-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:pt-16">
-        <div>
-          <p class="inline-flex items-center gap-2 rounded-full border border-line-strong bg-surface/80 px-3 py-1 text-xs text-fg-muted">
-            <span class="size-1.5 rounded-full bg-accent" /> Playwright engine · AI failure analysis
-          </p>
-          <h1 class="mt-6 text-[2.75rem] leading-[1.05] font-semibold tracking-[-0.03em] sm:text-6xl">
-            Let AI test<br>
-            <span class="bg-gradient-to-r from-[#c4b9ff] via-accent to-accent-blue bg-clip-text text-transparent">your software.</span>
-          </h1>
-          <p class="mt-6 max-w-lg text-base leading-relaxed text-fg-muted">
+      <!-- Hero -->
+      <motion.section
+        class="mx-auto max-w-[1200px] px-6 pt-14 pb-12 lg:pt-24 lg:pb-16"
+        initial="hidden"
+        animate="visible"
+        :variants="heroSequence"
+      >
+        <motion.h1 :variants="rise" class="text-[clamp(2.5rem,8vw,6rem)] leading-[0.95] font-semibold tracking-[-0.04em]">
+          <span class="sr-only">Let AI test your software.</span>
+          <span aria-hidden="true" class="block">Let AI test</span>
+          <span aria-hidden="true" class="mt-[0.12em] flex flex-wrap items-center gap-x-[0.26em] gap-y-2">
+            your
+            <LandingSplitFlap class="text-[0.8em] tracking-normal" :words="FLAP_WORDS" :length="9" />
+          </span>
+        </motion.h1>
+        <motion.div :variants="rise" class="mt-10 flex flex-wrap items-end justify-between gap-x-12 gap-y-7">
+          <p class="max-w-[46ch] text-[17px] leading-relaxed text-fg-muted">
             TestPilot explores your application, executes real browser tests, detects failures, and turns them into actionable bug reports.
           </p>
-          <div class="mt-8 flex flex-wrap gap-3">
-            <UiButton variant="primary" :to="startTo" class="!h-10 !px-4 !text-sm">Start Testing <ArrowRight /></UiButton>
-            <UiButton :to="{ path: '/', hash: '#how-it-works' }" class="!h-10 !px-4 !text-sm">View Demo</UiButton>
+          <div class="flex flex-wrap gap-3">
+            <UiButton variant="primary" size="lg" :to="startTo">Start testing <ArrowRight /></UiButton>
+            <UiButton size="lg" :to="{ path: '/', hash: '#how-it-works' }">View demo</UiButton>
           </div>
-          <dl class="mt-10 grid max-w-md grid-cols-3 gap-4 border-t border-line pt-6">
-            <div><dt class="eyebrow">Engine</dt><dd class="mt-1 text-[13px]">Playwright</dd></div>
-            <div><dt class="eyebrow">Output</dt><dd class="mt-1 text-[13px]">Validated JSON</dd></div>
-            <div><dt class="eyebrow">Verdict</dt><dd class="mt-1 text-[13px]">Real browser</dd></div>
-          </dl>
-        </div>
-        <LandingHeroVisual />
-      </div>
-    </section>
+        </motion.div>
+      </motion.section>
 
-    <!-- Pipeline -->
-    <section id="how-it-works" class="scroll-mt-8 border-t border-line bg-surface/40">
-      <div class="mx-auto max-w-6xl px-6 py-20">
-        <p class="eyebrow">How it works</p>
-        <h2 class="mt-3 max-w-xl text-3xl font-semibold tracking-tight">From a goal to a bug report, with evidence at every step.</h2>
-        <ol class="mt-12 grid gap-px overflow-hidden rounded-xl border border-line bg-line md:grid-cols-5">
-          <li v-for="(stage, index) in pipeline" :key="stage.title" class="relative bg-surface p-5">
-            <div class="flex items-center gap-2">
-              <span class="flex size-8 items-center justify-center rounded-lg border border-line-strong bg-raised text-accent"><component :is="stage.icon" class="size-4" /></span>
-              <span class="ml-auto font-mono text-[11px] text-fg-subtle">0{{ index + 1 }}</span>
-            </div>
-            <h3 class="mt-4 text-sm font-semibold">{{ stage.title }}</h3>
-            <p class="mt-1.5 text-[13px] leading-relaxed text-fg-muted">{{ stage.body }}</p>
-          </li>
-        </ol>
-      </div>
-    </section>
+      <!-- How it works: the recorder -->
+      <section id="how-it-works" class="mx-auto max-w-[1200px] scroll-mt-20 px-6 pb-24">
+        <LandingReveal>
+          <p class="mb-3 text-[13px] text-fg-subtle">One failing checkout test, played back from the agent to the bug report.</p>
+          <LandingRecorder />
+        </LandingReveal>
+      </section>
 
-    <!-- Features -->
-    <section id="features" class="scroll-mt-8 border-t border-line">
-      <div class="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-3">
-        <div v-for="feature in features" :key="feature.title">
-          <component :is="feature.icon" class="size-5 text-accent" />
-          <h3 class="mt-4 text-[15px] font-semibold">{{ feature.title }}</h3>
-          <p class="mt-2 text-[13px] leading-relaxed text-fg-muted">{{ feature.body }}</p>
+      <!-- Bug hunt -->
+      <section id="bug-hunt" class="scroll-mt-16 border-t border-line">
+        <div class="mx-auto grid max-w-[1200px] items-start gap-x-16 gap-y-10 px-6 py-20 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:py-28">
+          <LandingReveal class="lg:sticky lg:top-28">
+            <h2 class="text-[clamp(1.75rem,3.5vw,2.5rem)] leading-[1.05] font-semibold tracking-[-0.025em]">
+              Eight planted bugs. Eight real failures.
+            </h2>
+            <p class="mt-5 max-w-[42ch] text-[15px] leading-relaxed text-fg-muted">
+              The demo store ships with bugs on purpose. This is the run that finds them, with the messages the engine actually prints.
+            </p>
+            <p class="mt-8 text-[13px] text-fg-subtle">Start the store with every bug fixed and the same tests pass:</p>
+            <code class="mt-2 inline-block rounded-[4px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[12px] text-fg-muted">pnpm demo:site:fixed</code>
+          </LandingReveal>
+          <LandingReveal :delay="0.1">
+            <LandingBugHuntRun />
+          </LandingReveal>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- CTA -->
-    <section class="border-t border-line">
-      <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-6 px-6 py-14">
-        <div class="flex-1">
-          <h2 class="text-xl font-semibold tracking-tight">Point it at a staging URL. Watch it run.</h2>
-          <p class="mt-1.5 text-[13px] text-fg-muted">Create a project, describe a flow, and get a real browser verdict in minutes.</p>
+      <!-- Steps are data -->
+      <section id="steps" class="scroll-mt-16 border-t border-line">
+        <div class="mx-auto max-w-[1200px] px-6 py-20 lg:py-28">
+          <LandingReveal class="max-w-2xl">
+            <h2 class="text-[clamp(1.75rem,3.5vw,2.5rem)] leading-[1.05] font-semibold tracking-[-0.025em]">Steps are data, never code.</h2>
+            <p class="mt-5 max-w-[56ch] text-[15px] leading-relaxed text-fg-muted">
+              Every step is checked against one schema before it is stored or run, whether a person wrote it or a model proposed it. Nothing is ever evaluated as code.
+            </p>
+          </LandingReveal>
+          <LandingReveal :delay="0.1" class="mt-12">
+            <LandingStepsDemo />
+          </LandingReveal>
         </div>
-        <UiButton variant="primary" :to="startTo" class="!h-10 !px-4 !text-sm">Start Testing <ArrowRight /></UiButton>
-      </div>
-      <footer class="mx-auto flex max-w-6xl items-center gap-4 border-t border-line px-6 py-6 text-xs text-fg-subtle">
-        <AppLogo :show-text="false" />
-        <span>TestPilot AI</span>
-        <span class="ml-auto">Built with Nuxt, NestJS, PostgreSQL & Playwright</span>
-      </footer>
-    </section>
-  </div>
+      </section>
+
+      <!-- Failure analysis -->
+      <section id="analysis" class="scroll-mt-16 border-t border-line">
+        <div class="mx-auto max-w-[1200px] px-6 py-20 lg:py-28">
+          <LandingReveal class="max-w-2xl">
+            <h2 class="text-[clamp(1.75rem,3.5vw,2.5rem)] leading-[1.05] font-semibold tracking-[-0.025em]">Failures come with an explanation.</h2>
+            <p class="mt-5 max-w-[56ch] text-[15px] leading-relaxed text-fg-muted">
+              The evidence from a failed test goes to a model, which writes the analysis and drafts the bug report. It explains the failure. The browser already decided it.
+            </p>
+          </LandingReveal>
+          <LandingReveal :delay="0.1" class="mt-12">
+            <LandingFailureAnalysis />
+          </LandingReveal>
+        </div>
+      </section>
+
+      <!-- The engine -->
+      <section id="engine" class="scroll-mt-16 border-t border-line">
+        <div class="mx-auto grid max-w-[1200px] gap-x-16 gap-y-10 px-6 py-20 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:py-28">
+          <LandingReveal>
+            <h2 class="text-[clamp(1.75rem,3.5vw,2.5rem)] leading-[1.05] font-semibold tracking-[-0.025em]">
+              The browser decides.<br>Not the model.
+            </h2>
+            <p class="mt-5 max-w-[42ch] text-[15px] leading-relaxed text-fg-muted">
+              AI can explore an app and propose what to test. Whether a test passed is decided the same way every time: by assertions running in Chromium.
+            </p>
+          </LandingReveal>
+          <motion.dl
+            class="divide-y divide-line border-y border-line"
+            initial="hidden"
+            while-in-view="visible"
+            :in-view-options="{ once: true, margin: '0px 0px -12% 0px' }"
+            :variants="specSequence"
+          >
+            <motion.div
+              v-for="row in SPEC"
+              :key="row.term"
+              :variants="rise"
+              class="grid gap-1 py-3.5 sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:gap-6"
+            >
+              <dt class="text-[13px] text-fg-subtle">{{ row.term }}</dt>
+              <dd class="text-[14px] leading-relaxed">{{ row.detail }}</dd>
+            </motion.div>
+          </motion.dl>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="border-t border-line">
+        <LandingReveal class="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-6 px-6 py-16">
+          <div>
+            <h2 class="text-2xl font-semibold tracking-[-0.015em]">Point it at a staging URL. Watch it run.</h2>
+            <p class="mt-2 text-[14px] text-fg-muted">Create a project, describe a flow, and get a real browser verdict in minutes.</p>
+          </div>
+          <UiButton variant="primary" size="lg" :to="startTo">Start testing <ArrowRight /></UiButton>
+        </LandingReveal>
+        <footer class="border-t border-line">
+          <div class="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-4 gap-y-2 px-6 py-6 text-xs text-fg-subtle">
+            <AppLogo :show-text="false" />
+            <span>TestPilot AI</span>
+            <span class="ml-auto">Built with Nuxt, NestJS, PostgreSQL and Playwright</span>
+          </div>
+        </footer>
+      </section>
+    </div>
+  </MotionConfig>
 </template>

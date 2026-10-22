@@ -35,7 +35,7 @@ function remove(index: number) {
     <div class="panel-header">
       <h2 class="panel-title">Steps</h2>
       <span class="font-mono text-[11px] text-fg-subtle">{{ steps.length }}</span>
-      <p class="ml-auto hidden text-[11px] text-fg-subtle sm:block">Run top to bottom in a fresh Chromium context</p>
+      <p class="ml-auto hidden text-xs text-fg-subtle sm:block">Top to bottom, in a fresh browser context</p>
     </div>
 
     <ol v-if="steps.length" class="divide-y divide-line">
@@ -58,8 +58,8 @@ function remove(index: number) {
     </div>
 
     <div class="flex flex-wrap items-center gap-1.5 border-t border-line px-3 py-2.5">
-      <span class="mr-1 text-[11px] text-fg-subtle">Add</span>
-      <UiButton v-for="action in QUICK_ADD" :key="action" size="xs" variant="ghost" class="border border-line" @click="add(action)">
+      <span class="mr-1 text-xs text-fg-subtle">Add step</span>
+      <UiButton v-for="action in QUICK_ADD" :key="action" size="xs" @click="add(action)">
         <Plus /> {{ ACTIONS[action].label }}
       </UiButton>
     </div>

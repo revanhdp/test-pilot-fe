@@ -1,58 +1,56 @@
 @import 'tailwindcss';
 
 /*
- * TestPilot — "AI Testing Control Room"
- * Dark-first, technical. Charcoal surfaces, hairline borders, one violet/blue
- * accent for AI and focus, semantic colors reserved for test outcomes.
+ * TestPilot — instrument panel.
+ * Warm graphite surfaces, paper-white text and hairline rules. Color is
+ * reserved for test outcomes, so green, red, amber and blue always mean a
+ * verdict. Everything else, including primary actions, is neutral.
  */
 @theme {
-  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: 'IBM Plex Sans Variable', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Surfaces, from back to front */
-  --color-canvas: #0a0b0d;
-  --color-surface: #0f1013;
-  --color-raised: #15161a;
-  --color-overlay: #1b1d22;
+  --color-canvas: #0f0f0e;
+  --color-surface: #161615;
+  --color-raised: #1c1c1a;
+  --color-overlay: #252522;
 
   /* Lines */
-  --color-line: #212329;
-  --color-line-strong: #2d3038;
+  --color-line: #2a2a27;
+  --color-line-strong: #3b3b37;
 
   /* Text */
-  --color-fg: #e8e9ed;
-  --color-fg-muted: #9a9fab;
-  --color-fg-subtle: #646976;
+  --color-fg: #edece6;
+  --color-fg-muted: #aeada4;
+  --color-fg-subtle: #8a8980;
 
-  /* AI accent */
-  --color-accent: #9b8afb;
-  --color-accent-strong: #7f6cf5;
-  --color-accent-blue: #5b8cff;
+  /* Outcomes: the only colors in the interface */
+  --color-pass: #5fd38a;
+  --color-fail: #ff6a5c;
+  --color-warn: #f2b347;
+  --color-skip: #8e8d85;
+  --color-run: #69b4ff;
 
-  /* Outcomes */
-  --color-pass: #3ecf8e;
-  --color-fail: #f25f5c;
-  --color-warn: #f2a93b;
-  --color-skip: #7b818d;
-  --color-run: #5b9dff;
+  --radius-panel: 6px;
 
-  --radius-panel: 10px;
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-blink: blink 1.2s steps(1, end) infinite;
+  --animate-sweep: sweep 1.4s ease-in-out infinite;
 
-  --animate-pulse-soft: pulse-soft 1.6s ease-in-out infinite;
-  --animate-scan: scan 2.4s linear infinite;
-  --animate-fade-in: fade-in 0.25s ease-out;
-
-  @keyframes pulse-soft {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.45; }
-  }
-  @keyframes scan {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(100%); }
-  }
   @keyframes fade-in {
-    from { opacity: 0; transform: translateY(2px); }
-    to { opacity: 1; transform: none; }
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  /* An annunciator light: on, off, no easing. */
+  @keyframes blink {
+    0%, 60% { opacity: 1; }
+    61%, 100% { opacity: 0.2; }
+  }
+  /* Indeterminate progress along the top edge of a running browser frame. */
+  @keyframes sweep {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(300%); }
   }
 }
 
@@ -66,18 +64,27 @@
     background: var(--color-canvas);
     color: var(--color-fg);
     font-family: var(--font-sans);
-    font-feature-settings: 'ss01', 'cv11';
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    background: color-mix(in oklab, var(--color-accent) 35%, transparent);
+    background: color-mix(in oklab, var(--color-fg) 24%, transparent);
   }
 
   :focus-visible {
-    outline: 2px solid color-mix(in oklab, var(--color-accent) 70%, transparent);
+    outline: 2px solid var(--color-fg);
     outline-offset: 2px;
+  }
+
+  input[type='checkbox'] {
+    accent-color: var(--color-fg);
+  }
+
+  /* Tailwind 4's preflight leaves buttons with the default arrow cursor. */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
   }
 
   * {
@@ -87,7 +94,7 @@
 }
 
 @layer components {
-  /* A bordered panel: the basic container of the control room. */
+  /* A bordered panel. Used for groups that need a frame, not for every block. */
   .panel {
     background: var(--color-surface);
     border: 1px solid var(--color-line);
@@ -105,23 +112,33 @@
 
   .panel-title {
     font-size: 0.8125rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--color-fg);
   }
 
-  .eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+  /* Small field-style caption above a value or a block. */
+  .caption {
+    font-size: 0.75rem;
+    font-weight: 500;
     color: var(--color-fg-subtle);
   }
 
-  /* Faint engineering grid used behind hero and empty states. */
-  .grid-backdrop {
-    background-image:
-      linear-gradient(to right, color-mix(in oklab, var(--color-line) 55%, transparent) 1px, transparent 1px),
-      linear-gradient(to bottom, color-mix(in oklab, var(--color-line) 55%, transparent) 1px, transparent 1px);
-    background-size: 32px 32px;
+  /* Inline text link: no hue, an underline that firms up on hover. */
+  .link {
+    color: var(--color-fg);
+    text-decoration: underline;
+    text-decoration-color: var(--color-line-strong);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.15s;
+  }
+  .link:hover {
+    text-decoration-color: currentColor;
+  }
+
+  /* Condensed display cut of Plex Sans, for verdicts and big numbers. */
+  .display {
+    font-stretch: 82%;
+    font-weight: 650;
+    letter-spacing: -0.01em;
   }
 }

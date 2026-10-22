@@ -13,8 +13,11 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
 
   css: [
-    '@fontsource-variable/geist',
-    '@fontsource-variable/geist-mono',
+    // Weight and width axes: the width axis gives the condensed display cut.
+    '@fontsource-variable/ibm-plex-sans/wdth.css',
+    '@fontsource/ibm-plex-mono/400.css',
+    '@fontsource/ibm-plex-mono/500.css',
+    '@fontsource/ibm-plex-mono/600.css',
     '~/assets/css/main.css',
   ],
 
@@ -32,7 +35,7 @@ export default defineNuxtConfig({
           content:
             'TestPilot explores your application, executes real browser tests, detects failures, and turns them into actionable bug reports.',
         },
-        { name: 'theme-color', content: '#0a0b0d' },
+        { name: 'theme-color', content: '#0f0f0e' },
       ],
       link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     },

@@ -1,13 +1,14 @@
 <script setup lang="ts">
+/** `eyebrow` is the context the page lives in (project, suite…), shown above the title. */
 defineProps<{ title: string; eyebrow?: string }>()
 </script>
 
 <template>
-  <header class="mb-6 flex flex-wrap items-end gap-x-6 gap-y-3">
+  <header class="mb-7 flex flex-wrap items-end gap-x-6 gap-y-4">
     <div class="min-w-[min(100%,20rem)] flex-1">
-      <p v-if="eyebrow" class="eyebrow mb-1.5">{{ eyebrow }}</p>
-      <h1 class="truncate text-xl font-semibold tracking-tight">{{ title }}</h1>
-      <div v-if="$slots.default" class="mt-1.5 text-[13px] text-fg-muted">
+      <p v-if="eyebrow" class="mb-1 truncate text-[13px] text-fg-subtle">{{ eyebrow }}</p>
+      <h1 class="text-2xl leading-tight font-semibold tracking-[-0.015em] text-balance wrap-break-word">{{ title }}</h1>
+      <div v-if="$slots.default" class="mt-2 text-[13px] text-fg-muted">
         <slot />
       </div>
     </div>

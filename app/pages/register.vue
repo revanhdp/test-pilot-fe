@@ -26,11 +26,13 @@ async function submit() {
 </script>
 
 <template>
-  <div class="panel p-6 shadow-2xl shadow-black/40">
-    <h1 class="text-lg font-semibold tracking-tight">Create your account</h1>
-    <p class="mt-1 text-[13px] text-fg-muted">Point TestPilot at a website and run real browser tests in minutes.</p>
+  <div>
+    <h1 class="text-2xl font-semibold tracking-[-0.015em]">Create your account</h1>
+    <p class="mt-2 text-[13px] text-fg-muted">
+      Already have one? <NuxtLink to="/login" class="link">Sign in</NuxtLink>
+    </p>
 
-    <form class="mt-6 space-y-4" @submit.prevent="submit">
+    <form class="mt-8 space-y-4" @submit.prevent="submit">
       <UiField label="Name" :error="errors.name">
         <UiInput v-model="form.name" autocomplete="name" required autofocus :invalid="!!errors.name" />
       </UiField>
@@ -41,11 +43,7 @@ async function submit() {
         <UiInput v-model="form.password" type="password" autocomplete="new-password" required :invalid="!!errors.password" />
       </UiField>
       <UiAlert :message="error" />
-      <UiButton type="submit" variant="primary" block :loading="loading">Create account</UiButton>
+      <UiButton type="submit" variant="primary" size="lg" block :loading="loading">Create account</UiButton>
     </form>
   </div>
-  <p class="mt-6 text-center text-[13px] text-fg-muted">
-    Already have an account?
-    <NuxtLink to="/login" class="text-accent hover:underline">Sign in</NuxtLink>
-  </p>
 </template>

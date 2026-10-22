@@ -24,7 +24,6 @@ usePolling(refresh, anyActive, 2000)
 <template>
   <div>
     <AppPageHeader title="Test runs" :eyebrow="current?.name">
-      Every execution of one or more test cases against an environment.
       <template v-if="current" #actions>
         <UiButton to="/test-cases">Choose tests to run</UiButton>
       </template>
@@ -58,7 +57,7 @@ usePolling(refresh, anyActive, 2000)
             <tr v-for="run in runs" :key="run.id" class="cursor-pointer transition-colors hover:bg-raised" @click="navigateTo(`/test-runs/${run.id}`)">
               <td class="px-4 py-3">
                 <NuxtLink :to="`/test-runs/${run.id}`" class="font-mono font-medium text-fg" @click.stop>#{{ run.number }}</NuxtLink>
-                <p class="mt-0.5 text-xs text-fg-subtle">{{ run.triggeredBy?.name ?? '—' }} · {{ run.browser }}</p>
+                <p class="mt-0.5 text-xs text-fg-subtle">{{ run.triggeredBy?.name ?? '—' }}</p>
               </td>
               <td class="px-3 py-3"><RunStatusBadge :status="run.status" /></td>
               <td class="px-3 py-3">
@@ -68,10 +67,9 @@ usePolling(refresh, anyActive, 2000)
               <td class="px-3 py-3">
                 <RunResultBar :passed="run.passedTests" :failed="run.failedTests" :skipped="run.skippedTests" :total="run.totalTests" />
                 <p class="mt-1.5 flex gap-3 font-mono text-[11px] tabular-nums">
-                  <span class="text-pass">{{ run.passedTests }} passed</span>
+                  <span :class="run.passedTests ? 'text-pass' : 'text-fg-subtle'">{{ run.passedTests }} passed</span>
                   <span :class="run.failedTests ? 'text-fail' : 'text-fg-subtle'">{{ run.failedTests }} failed</span>
                   <span v-if="run.skippedTests" class="text-fg-subtle">{{ run.skippedTests }} skipped</span>
-                  <span class="text-fg-subtle">/ {{ run.totalTests }}</span>
                 </p>
               </td>
               <td class="px-3 py-3 text-right font-mono text-xs text-fg-muted tabular-nums">{{ formatPercent(runPassRate(run), 1) }}</td>

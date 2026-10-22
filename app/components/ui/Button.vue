@@ -4,7 +4,7 @@ import type { RouteLocationRaw } from 'vue-router'
 const props = withDefaults(
   defineProps<{
     variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
-    size?: 'xs' | 'sm' | 'md'
+    size?: 'xs' | 'sm' | 'md' | 'lg'
     type?: 'button' | 'submit'
     to?: RouteLocationRaw
     loading?: boolean
@@ -14,23 +14,24 @@ const props = withDefaults(
   { variant: 'secondary', size: 'md', type: 'button' },
 )
 
+// Primary is paper-white on graphite: the strongest contrast on the screen, no hue.
 const VARIANTS = {
-  primary:
-    'bg-accent-strong text-white hover:bg-[#8b7af7] shadow-[inset_0_1px_0_rgb(255_255_255/0.12),0_0_0_1px_rgb(155_138_251/0.35),0_8px_24px_-12px_rgb(127_108_245/0.9)]',
-  secondary: 'bg-raised text-fg border border-line-strong hover:bg-overlay hover:border-[#3a3e48]',
-  ghost: 'text-fg-muted hover:text-fg hover:bg-overlay',
-  danger: 'bg-fail/10 text-fail border border-fail/30 hover:bg-fail/15',
+  primary: 'bg-fg text-canvas hover:bg-white',
+  secondary: 'border border-line-strong text-fg hover:border-[#4b4b46] hover:bg-raised',
+  ghost: 'text-fg-muted hover:bg-raised hover:text-fg',
+  danger: 'border border-fail/40 text-fail hover:bg-fail/10',
 }
 
 const SIZES = {
-  xs: 'h-6 px-2 text-xs gap-1 rounded',
-  sm: 'h-7 px-2.5 text-xs gap-1.5 rounded-md',
-  md: 'h-8.5 px-3 text-[13px] gap-1.5 rounded-md',
+  xs: 'h-6 px-2 text-xs gap-1',
+  sm: 'h-7 px-2.5 text-xs gap-1.5',
+  md: 'h-8 px-3 text-[13px] gap-1.5',
+  lg: 'h-10 px-4 text-sm gap-2',
 }
 
 const classes = computed(() => [
-  'inline-flex shrink-0 items-center justify-center font-medium whitespace-nowrap transition-colors select-none',
-  'disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-3.5 [&_svg]:shrink-0',
+  'inline-flex shrink-0 items-center justify-center rounded-[4px] font-medium whitespace-nowrap transition-colors select-none',
+  'disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-3.5 [&_svg]:shrink-0',
   SIZES[props.size],
   VARIANTS[props.variant],
   props.block && 'w-full',

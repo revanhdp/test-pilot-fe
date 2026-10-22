@@ -76,3 +76,8 @@ export function prettyUrl(url: string | null | undefined): string {
   if (!url) return ''
   return url.replace(/^https?:\/\//, '').replace(/\/$/, '')
 }
+
+/** "1 run", "3 runs". */
+export function plural(count: number, word: string): string {
+  return `${count.toLocaleString()} ${word}${count === 1 ? '' : 's'}`
+}

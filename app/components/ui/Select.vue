@@ -38,10 +38,10 @@ const selectAttrs = computed(() => {
       v-model="model"
       :aria-invalid="invalid || undefined"
       :class="[
-        'w-full min-w-0 appearance-none truncate rounded-md border bg-canvas pr-7 text-fg transition-colors',
-        'focus:outline-none focus:ring-2 focus:ring-accent/15 disabled:opacity-60',
-        size === 'sm' ? 'h-7.5 pl-2 text-xs' : 'h-8.5 pl-2.5 text-[13px]',
-        invalid ? 'border-fail/60' : 'border-line-strong hover:border-[#3a3e48] focus:border-accent/60',
+        'w-full min-w-0 appearance-none truncate rounded-[4px] border bg-canvas pr-7 text-fg transition-colors',
+        'focus:outline-none disabled:opacity-60',
+        size === 'sm' ? 'h-8.5 pl-2 text-base sm:h-7.5 sm:text-xs' : 'h-10 pl-2.5 text-base sm:h-8.5 sm:text-[13px]',
+        invalid ? 'border-fail/70' : 'border-line-strong hover:border-[#4b4b46] focus:border-fg-muted',
         mono && 'font-mono',
         model == null || model === '' ? 'text-fg-subtle' : '',
       ]"

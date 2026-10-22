@@ -151,11 +151,11 @@ const statusOptions = [
         Created by {{ testCase.createdBy?.name ?? 'a deleted user' }} · updated {{ formatRelative(testCase.updatedAt) }}
       </template>
       <template #actions>
-        <span v-if="testCase && dirty" class="text-xs text-warn">Unsaved changes</span>
+        <span v-if="testCase && dirty" class="flex items-center gap-1.5 text-xs text-warn"><span class="size-1.5 rounded-full bg-warn" /> Unsaved changes</span>
         <UiButton v-if="testCase" variant="ghost" @click="confirmDelete = true"><Trash /> Delete</UiButton>
         <UiButton variant="primary" :loading="saving" :disabled="!dirty" @click="save">
           <Save v-if="!saving" /> {{ testCase ? 'Save' : 'Create test case' }}
-          <kbd class="ml-1 hidden font-mono text-[10px] text-white/60 sm:inline">⌘S</kbd>
+          <kbd class="ml-1 hidden font-mono text-[10px] opacity-55 sm:inline">⌘S</kbd>
         </UiButton>
       </template>
     </AppPageHeader>
@@ -180,7 +180,7 @@ const statusOptions = [
         <section v-if="testCase" class="panel overflow-hidden">
           <div class="panel-header">
             <h2 class="panel-title">Run</h2>
-            <span class="ml-auto font-mono text-[10px] tracking-wide text-fg-subtle uppercase">chromium</span>
+            <span class="ml-auto font-mono text-[10px] tracking-wider text-fg-subtle uppercase">chromium</span>
           </div>
           <div class="space-y-3 p-4">
             <template v-if="environments.length">
@@ -195,7 +195,7 @@ const statusOptions = [
             </template>
             <p v-else class="text-xs leading-relaxed text-fg-muted">
               Add an environment to this project to run tests.
-              <NuxtLink :to="`/projects/${projectId}`" class="text-accent hover:underline">Configure environments</NuxtLink>
+              <NuxtLink :to="`/projects/${projectId}`" class="text-fg underline decoration-line-strong underline-offset-2 hover:decoration-fg">Configure environments</NuxtLink>
             </p>
           </div>
         </section>
@@ -225,7 +225,7 @@ const statusOptions = [
           <ul v-if="testCase.results.length" class="divide-y divide-line">
             <li v-for="result in testCase.results" :key="result.id">
               <NuxtLink :to="`/test-runs/${result.testRun.id}`" class="flex items-center gap-2.5 px-4 py-2 text-xs hover:bg-raised">
-                <RunStatusIcon :status="result.status" class="size-3.5" />
+                <RunStatusIcon :status="result.status" size="sm" />
                 <span class="font-mono text-fg-muted">#{{ result.testRun.number }}</span>
                 <span class="min-w-0 flex-1 truncate text-fg-subtle">{{ result.testRun.environmentName }}</span>
                 <span class="text-fg-subtle tabular-nums">{{ formatRelative(result.createdAt) }}</span>

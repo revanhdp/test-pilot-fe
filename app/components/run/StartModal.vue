@@ -37,10 +37,9 @@ async function submit() {
         <UiField label="Environment">
           <UiSelect v-model="environmentId" :options="options" placeholder="Choose an environment" />
         </UiField>
-        <div class="flex items-center gap-3 rounded-md border border-line bg-raised px-3 py-2.5 text-xs text-fg-muted">
-          <span class="font-mono text-[10px] tracking-wide text-fg-subtle uppercase">Chromium</span>
-          <span>Each test runs in an isolated browser context. Screenshots are captured for every result.</span>
-        </div>
+        <p class="text-xs leading-relaxed text-fg-subtle">
+          Runs in Chromium. Each test gets a fresh browser context and ends with a screenshot.
+        </p>
         <UiAlert :message="error" />
       </div>
       <div class="flex justify-end gap-2 border-t border-line px-5 py-3">

@@ -22,17 +22,12 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocumentClick)
   <div ref="root" class="relative">
     <button
       type="button"
-      class="flex w-full items-center gap-2.5 rounded-md border border-line bg-raised px-2 py-1.5 text-left transition-colors hover:border-line-strong hover:bg-overlay"
+      class="flex w-full items-center gap-2 rounded-[4px] border border-line px-2.5 py-1.5 text-left transition-colors hover:border-line-strong hover:bg-raised"
       :aria-expanded="open"
       @click="open = !open"
     >
-      <span
-        class="flex size-6 shrink-0 items-center justify-center rounded bg-gradient-to-br from-accent/30 to-accent-blue/20 font-mono text-[11px] font-semibold text-fg"
-      >
-        {{ current ? initials(current.name) : '–' }}
-      </span>
       <span class="min-w-0 flex-1">
-        <span class="block text-[10px] text-fg-subtle">Project</span>
+        <span class="block text-[11px] text-fg-subtle">Project</span>
         <span class="block truncate text-[13px] font-medium">{{ current?.name ?? 'No project yet' }}</span>
       </span>
       <ChevronsUpDown class="size-3.5 shrink-0 text-fg-subtle" />
@@ -40,7 +35,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocumentClick)
 
     <div
       v-if="open"
-      class="absolute inset-x-0 top-full z-30 mt-1 overflow-hidden rounded-md border border-line-strong bg-raised shadow-xl shadow-black/50"
+      class="absolute inset-x-0 top-full z-30 mt-1 overflow-hidden rounded-[5px] border border-line-strong bg-raised shadow-[0_16px_40px_-16px_rgb(0_0_0/0.8)]"
     >
       <div class="max-h-64 overflow-y-auto py-1">
         <button
@@ -51,7 +46,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocumentClick)
           @click="choose(project.id)"
         >
           <span class="min-w-0 flex-1 truncate">{{ project.name }}</span>
-          <Check v-if="project.id === current?.id" class="size-3.5 text-accent" />
+          <Check v-if="project.id === current?.id" class="size-3.5 text-fg" />
         </button>
         <p v-if="!projects?.length" class="px-2.5 py-1.5 text-xs text-fg-subtle">No projects yet</p>
       </div>

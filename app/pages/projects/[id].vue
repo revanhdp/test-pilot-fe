@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Globe, Layers, ListChecks, Pencil, Play, Plus, Trash, Workflow } from '@lucide/vue'
+import { ArrowRight, ListChecks, Pencil, Play, Plus, Trash } from '@lucide/vue'
 import type { Environment, ProjectDetail, TestRunListItem, TestSuite } from '~/types/api'
 
 const route = useRoute()
@@ -92,7 +92,7 @@ const pendingOpen = computed({
 
   <div v-else-if="project">
     <AppPageHeader :title="project.name" eyebrow="Project">
-      {{ project.description ?? 'No description' }}
+      <template v-if="project.description">{{ project.description }}</template>
       <template #actions>
         <UiButton variant="ghost" @click="editingProject = true"><Pencil /> Edit</UiButton>
         <UiButton variant="ghost" @click="deletingProject = true"><Trash /> Delete</UiButton>
@@ -107,16 +107,17 @@ const pendingOpen = computed({
       <!-- Environments -->
       <section class="panel">
         <div class="panel-header">
-          <Globe class="size-4 text-fg-subtle" />
           <h2 class="panel-title">Environments</h2>
           <UiButton class="ml-auto" size="sm" variant="ghost" @click="openEnv(null)"><Plus /> Add</UiButton>
         </div>
         <ul v-if="project.environments.length" class="divide-y divide-line">
           <li v-for="env in project.environments" :key="env.id" class="group flex items-center gap-3 px-4 py-3">
-            <UiBadge :tone="ENVIRONMENT_TYPE_TONES[env.type]" class="w-[78px] justify-center">{{ ENVIRONMENT_TYPE_LABELS[env.type] }}</UiBadge>
             <div class="min-w-0 flex-1">
-              <p class="text-[13px] font-medium">{{ env.name }}</p>
-              <a :href="env.baseUrl" target="_blank" rel="noopener noreferrer" class="block truncate font-mono text-xs text-fg-subtle hover:text-accent">{{ env.baseUrl }}</a>
+              <p class="flex items-center gap-2 text-[13px] font-medium">
+                {{ env.name }}
+                <UiBadge :tone="ENVIRONMENT_TYPE_TONES[env.type]">{{ ENVIRONMENT_TYPE_LABELS[env.type] }}</UiBadge>
+              </p>
+              <a :href="env.baseUrl" target="_blank" rel="noopener noreferrer" class="mt-0.5 block truncate font-mono text-xs text-fg-subtle hover:text-fg hover:underline">{{ env.baseUrl }}</a>
             </div>
             <div class="flex gap-0.5 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
               <UiButton size="xs" variant="ghost" aria-label="Edit environment" @click="openEnv(env)"><Pencil /></UiButton>
@@ -139,7 +140,6 @@ const pendingOpen = computed({
       <!-- Suites -->
       <section class="panel">
         <div class="panel-header">
-          <Layers class="size-4 text-fg-subtle" />
           <h2 class="panel-title">Test suites</h2>
           <span class="font-mono text-[11px] text-fg-subtle">{{ project._count.testCases }} tests</span>
           <UiButton class="ml-auto" size="sm" variant="ghost" @click="openSuite(null)"><Plus /> Add</UiButton>
@@ -147,7 +147,7 @@ const pendingOpen = computed({
         <ul class="divide-y divide-line">
           <li v-for="suite in project.testSuites" :key="suite.id" class="group flex items-center gap-3 px-4 py-3">
             <NuxtLink :to="{ path: '/test-cases', query: { suite: suite.id } }" class="min-w-0 flex-1">
-              <p class="text-[13px] font-medium hover:text-accent">{{ suite.name }}</p>
+              <p class="text-[13px] font-medium hover:underline">{{ suite.name }}</p>
               <p class="truncate text-xs text-fg-subtle">{{ suite.description ?? `${suite._count.testCases} test cases` }}</p>
             </NuxtLink>
             <span class="font-mono text-xs text-fg-muted tabular-nums">{{ suite._count.testCases }}</span>
@@ -169,16 +169,15 @@ const pendingOpen = computed({
       <!-- Runs -->
       <section class="panel xl:col-span-2">
         <div class="panel-header">
-          <Workflow class="size-4 text-fg-subtle" />
           <h2 class="panel-title">Recent runs</h2>
-          <UiButton class="ml-auto" size="sm" variant="ghost" to="/test-runs">View all</UiButton>
+          <NuxtLink to="/test-runs" class="ml-auto flex items-center gap-1 text-xs text-fg-muted hover:text-fg">All runs <ArrowRight class="size-3.5" /></NuxtLink>
         </div>
         <ul v-if="runs?.length" class="divide-y divide-line">
           <li v-for="run in runs" :key="run.id">
-            <NuxtLink :to="`/test-runs/${run.id}`" class="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-2.5 hover:bg-raised sm:grid-cols-[110px_90px_1fr_160px_100px]">
+            <NuxtLink :to="`/test-runs/${run.id}`" class="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-2.5 hover:bg-raised sm:grid-cols-[70px_90px_1fr_160px_100px]">
+              <RunStatusBadge :status="run.status" class="justify-self-start" />
               <span class="font-mono text-[13px]">Run #{{ run.number }}</span>
-              <RunStatusBadge :status="run.status" class="hidden sm:inline-flex" />
-              <span class="truncate text-xs text-fg-muted">{{ run.environmentName }}</span>
+              <span class="hidden truncate text-xs text-fg-muted sm:block">{{ run.environmentName }}</span>
               <RunResultBar class="hidden sm:flex" :passed="run.passedTests" :failed="run.failedTests" :skipped="run.skippedTests" :total="run.totalTests" />
               <span class="text-right text-xs text-fg-subtle">{{ formatRelative(run.createdAt) }}</span>
             </NuxtLink>

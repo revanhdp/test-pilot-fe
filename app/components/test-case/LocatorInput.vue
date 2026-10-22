@@ -17,7 +17,7 @@ const datalistId = useId()
 </script>
 
 <template>
-  <div class="flex min-w-0 gap-1.5">
+  <div class="flex min-w-0 flex-wrap gap-1.5">
     <UiSelect v-model="locator.type" :options="typeOptions" size="sm" class="w-[104px] shrink-0" aria-label="Locator type" />
     <UiInput
       v-model="locator.value"
@@ -27,7 +27,7 @@ const datalistId = useId()
       :placeholder="optional ? `${LOCATOR_TYPES[locator.type].placeholder} (optional)` : LOCATOR_TYPES[locator.type].placeholder"
       :list="locator.type === 'role' ? datalistId : undefined"
       :aria-label="`${LOCATOR_TYPES[locator.type].label} locator`"
-      class="flex-1"
+      class="min-w-[8rem] flex-1"
     />
     <UiInput
       v-if="locator.type === 'role'"
@@ -35,7 +35,7 @@ const datalistId = useId()
       size="sm"
       placeholder="name"
       aria-label="Accessible name"
-      class="flex-1"
+      class="min-w-[8rem] flex-1"
     />
     <datalist :id="datalistId">
       <option v-for="role in ROLES" :key="role" :value="role" />

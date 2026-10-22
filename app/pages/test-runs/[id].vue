@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RotateCw, TriangleAlert } from '@lucide/vue'
+import { RotateCw } from '@lucide/vue'
 import type { TestRunDetail } from '~/types/api'
 
 const route = useRoute()
@@ -57,13 +57,10 @@ function rerun() {
 
   <div v-else-if="run">
     <AppPageHeader :title="`Run #${run.number}`" :eyebrow="run.project.name">
-      <span class="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <RunStatusBadge :status="run.status" />
-        <span>{{ run.environmentName }} <span class="font-mono text-xs text-fg-subtle">{{ prettyUrl(run.baseUrl) }}</span></span>
-        <span class="text-fg-subtle">·</span>
-        <span class="font-mono text-xs uppercase">{{ run.browser }}</span>
-        <span class="text-fg-subtle">·</span>
-        <span :title="formatDateTime(run.createdAt)">{{ run.triggeredBy?.name ?? 'Unknown' }}, {{ formatRelative(run.createdAt) }}</span>
+      <span class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <span>{{ run.environmentName }} <span class="ml-1 font-mono text-xs text-fg-subtle">{{ prettyUrl(run.baseUrl) }}</span></span>
+        <span class="font-mono text-xs text-fg-subtle uppercase"><span class="mr-2">·</span>{{ run.browser }}</span>
+        <span :title="formatDateTime(run.createdAt)"><span class="mr-2 text-fg-subtle">·</span>{{ run.triggeredBy?.name ?? 'Unknown' }}, {{ formatRelative(run.createdAt) }}</span>
       </span>
       <template #actions>
         <UiButton
@@ -79,36 +76,44 @@ function rerun() {
 
     <UiAlert :message="rerunError" class="mb-4" />
 
-    <!-- Summary strip -->
+    <!-- Verdict -->
     <section class="panel mb-6 overflow-hidden">
-      <div class="grid grid-cols-2 divide-line sm:grid-cols-5 sm:divide-x">
-        <div class="p-4">
-          <p class="eyebrow">Passed</p>
-          <p class="mt-1 font-mono text-2xl font-medium text-pass tabular-nums">{{ run.passedTests }}</p>
+      <div class="flex flex-wrap items-end gap-x-10 gap-y-4 px-5 pt-5 pb-4">
+        <div>
+          <p class="caption mb-2">Verdict</p>
+          <p :class="['display text-5xl leading-[0.9]', TONE_CLASSES[STATUS_META[run.status].tone].text]">
+            {{ STATUS_META[run.status].label }}
+          </p>
         </div>
-        <div class="p-4">
-          <p class="eyebrow">Failed</p>
-          <p :class="['mt-1 font-mono text-2xl font-medium tabular-nums', run.failedTests ? 'text-fail' : 'text-fg-subtle']">{{ run.failedTests }}</p>
-        </div>
-        <div class="p-4">
-          <p class="eyebrow">Skipped</p>
-          <p class="mt-1 font-mono text-2xl font-medium text-fg-subtle tabular-nums">{{ run.skippedTests }}</p>
-        </div>
-        <div class="p-4">
-          <p class="eyebrow">Pass rate</p>
-          <p class="mt-1 font-mono text-2xl font-medium tabular-nums">{{ formatPercent(passRate, 1) }}</p>
-        </div>
-        <div class="col-span-2 p-4 sm:col-span-1">
-          <p class="eyebrow">Duration</p>
-          <p class="mt-1 font-mono text-2xl font-medium tabular-nums">{{ formatDuration(runDuration(run)) }}</p>
-        </div>
+        <dl class="flex flex-wrap gap-x-8 gap-y-3 font-mono tabular-nums">
+          <div>
+            <dt class="caption mb-1 font-sans">Passed</dt>
+            <dd :class="['text-xl', run.passedTests ? 'text-pass' : 'text-fg-subtle']">{{ run.passedTests }}</dd>
+          </div>
+          <div>
+            <dt class="caption mb-1 font-sans">Failed</dt>
+            <dd :class="['text-xl', run.failedTests ? 'text-fail' : 'text-fg-subtle']">{{ run.failedTests }}</dd>
+          </div>
+          <div>
+            <dt class="caption mb-1 font-sans">Skipped</dt>
+            <dd class="text-xl text-fg-subtle">{{ run.skippedTests }}</dd>
+          </div>
+          <div>
+            <dt class="caption mb-1 font-sans">Pass rate</dt>
+            <dd class="text-xl">{{ formatPercent(passRate, 1) }}</dd>
+          </div>
+          <div>
+            <dt class="caption mb-1 font-sans">Duration</dt>
+            <dd class="text-xl">{{ formatDuration(runDuration(run)) }}</dd>
+          </div>
+        </dl>
       </div>
-      <div class="flex items-center gap-3 border-t border-line px-4 py-2.5">
+      <div class="flex items-center gap-3 border-t border-line px-5 py-2.5">
         <RunResultBar class="flex-1" height="md" :passed="run.passedTests" :failed="run.failedTests" :skipped="run.skippedTests" :total="run.totalTests" />
         <span class="font-mono text-[11px] text-fg-subtle tabular-nums">{{ completed }}/{{ run.totalTests }}</span>
       </div>
-      <div v-if="run.errorMessage" class="flex items-start gap-2 border-t border-warn/20 bg-warn/[0.06] px-4 py-2.5 text-xs text-warn">
-        <TriangleAlert class="mt-px size-3.5 shrink-0" /> {{ run.errorMessage }}
+      <div v-if="run.errorMessage" class="border-t border-warn/25 bg-warn/6 px-5 py-2.5 text-xs text-warn">
+        {{ run.errorMessage }}
       </div>
     </section>
 
@@ -125,11 +130,11 @@ function rerun() {
               type="button"
               :class="[
                 'relative flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition-colors',
-                selectedId === result.id ? 'bg-overlay' : 'hover:bg-raised',
+                selectedId === result.id ? 'bg-raised' : 'hover:bg-raised/60',
               ]"
               @click="selectedId = result.id"
             >
-              <span v-if="selectedId === result.id" class="absolute inset-y-0 left-0 w-0.5 bg-accent" />
+              <span v-if="selectedId === result.id" class="absolute inset-y-0 left-0 w-[2px] bg-fg" />
               <RunStatusIcon :status="result.status" class="mt-0.5" />
               <span class="min-w-0 flex-1">
                 <span class="flex items-baseline gap-2">
@@ -137,8 +142,8 @@ function rerun() {
                   <span class="ml-auto font-mono text-[11px] text-fg-subtle tabular-nums">{{ result.durationMs != null ? formatDuration(result.durationMs) : '' }}</span>
                 </span>
                 <span class="mt-0.5 block truncate text-[13px] text-fg">{{ result.testCaseSnapshot.title }}</span>
-                <span v-if="result.status === 'FAILED' || result.status === 'ERROR'" class="mt-0.5 block truncate text-xs text-fail/80">
-                  {{ result.failedStep ? `Step ${result.failedStep}: ` : '' }}{{ result.errorMessage?.split('\n')[0] }}
+                <span v-if="result.status === 'FAILED' || result.status === 'ERROR'" class="mt-0.5 block truncate font-mono text-[11px] text-fail/90">
+                  {{ result.failedStep ? `step ${result.failedStep}: ` : '' }}{{ result.errorMessage?.split('\n')[0] }}
                 </span>
               </span>
             </button>

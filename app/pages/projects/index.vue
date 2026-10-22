@@ -26,7 +26,6 @@ async function onCreated(project: Project) {
 <template>
   <div>
     <AppPageHeader title="Projects">
-      Each project is one application under test, with its environments, suites and run history.
       <template #actions>
         <UiButton variant="primary" @click="creating = true"><Plus /> New project</UiButton>
       </template>
@@ -63,7 +62,7 @@ async function onCreated(project: Project) {
             >
               <td class="px-4 py-3">
                 <NuxtLink :to="`/projects/${project.id}`" class="font-medium text-fg" @click.stop>{{ project.name }}</NuxtLink>
-                <p class="mt-0.5 max-w-md truncate text-xs text-fg-subtle">{{ project.description ?? 'No description' }}</p>
+                <p v-if="project.description" class="mt-0.5 max-w-md truncate text-xs text-fg-subtle">{{ project.description }}</p>
               </td>
               <td class="px-4 py-3 font-mono text-xs text-fg-muted tabular-nums">{{ project._count.environments }}</td>
               <td class="px-4 py-3 font-mono text-xs text-fg-muted tabular-nums">{{ project._count.testCases }}</td>

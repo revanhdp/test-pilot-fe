@@ -34,11 +34,11 @@ async function submit() {
 </script>
 
 <template>
-  <div class="panel p-6 shadow-2xl shadow-black/40">
-    <h1 class="text-lg font-semibold tracking-tight">Choose a new password</h1>
+  <div>
+    <h1 class="text-2xl font-semibold tracking-[-0.015em]">Choose a new password</h1>
     <template v-if="token">
-      <p class="mt-1 text-[13px] text-fg-muted">You'll be signed out of all other sessions.</p>
-      <form class="mt-6 space-y-4" @submit.prevent="submit">
+      <p class="mt-2 text-[13px] text-fg-muted">You'll be signed out of all other sessions.</p>
+      <form class="mt-8 space-y-4" @submit.prevent="submit">
         <UiField label="New password" hint="At least 8 characters.">
           <UiInput v-model="password" type="password" autocomplete="new-password" minlength="8" required autofocus />
         </UiField>
@@ -46,12 +46,12 @@ async function submit() {
           <UiInput v-model="confirm" type="password" autocomplete="new-password" required />
         </UiField>
         <UiAlert :message="error" />
-        <UiButton type="submit" variant="primary" block :loading="loading">Update password</UiButton>
+        <UiButton type="submit" variant="primary" size="lg" block :loading="loading">Update password</UiButton>
       </form>
     </template>
     <template v-else>
       <p class="mt-3 text-[13px] text-fg-muted">This reset link is missing its token.</p>
-      <UiButton class="mt-6" block to="/forgot-password">Request a new link</UiButton>
+      <UiButton class="mt-8" size="lg" block to="/forgot-password">Request a new link</UiButton>
     </template>
   </div>
 </template>

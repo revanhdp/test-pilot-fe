@@ -1,10 +1,16 @@
 <template>
-  <div class="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-4 py-12">
-    <div class="grid-backdrop pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,black,transparent)]" />
-    <div class="pointer-events-none absolute top-[-20%] left-1/2 h-[480px] w-[720px] -translate-x-1/2 rounded-full bg-accent-strong/15 blur-[120px]" />
-    <div class="relative w-full max-w-sm">
-      <NuxtLink to="/" class="mb-8 flex justify-center"><AppLogo /></NuxtLink>
-      <slot />
+  <div class="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+    <div class="flex flex-col px-6 py-6 sm:px-10">
+      <NuxtLink to="/" class="w-fit rounded-sm"><AppLogo /></NuxtLink>
+      <div class="flex flex-1 items-center justify-center py-12">
+        <div class="w-full max-w-[22rem]">
+          <slot />
+        </div>
+      </div>
+      <p class="text-xs text-fg-subtle">Browser tests that decide pass or fail in a real Chromium.</p>
+    </div>
+    <div class="hidden items-center justify-center border-l border-line bg-surface px-12 lg:flex">
+      <LandingRunTranscript />
     </div>
   </div>
 </template>

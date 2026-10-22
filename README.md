@@ -1,26 +1,27 @@
 # TestPilot AI — Web
 
-Web app for **TestPilot AI**, an AI-powered web application testing platform: a dark, developer-focused "testing control room" for writing browser tests, running them in a real Chromium, and inspecting the evidence when they fail.
+Web app for **TestPilot AI**, an AI-powered web application testing platform: write browser tests, run them in a real Chromium, and inspect the evidence when they fail.
 
 > API: [test-pilot-be](https://github.com/revanhdp/test-pilot-be)
 
 ## Features
 
-- **Landing page**: product overview with a live-looking composite of agent activity, browser, failed assertion and bug report.
+- **Landing page**: a split-flap "departure board" headline, then scenes that play when scrolled into view: one failing test played back from the agent to the bug report, a replay of the demo Bug Hunt run with its real failure messages, steps executing in sync with their JSON, a streamed failure analysis, and a datasheet of what the engine does today.
 - **Auth**: sign in, register, forgot and reset password.
-- **Overview**: the latest or live run with its browser screenshot, test health across recent runs, recent failures.
+- **Overview**: the latest or live run with its verdict and browser screenshot, test health across recent runs, recent failures.
 - **Projects**: environments (target base URLs), test suites, recent runs.
 - **Test cases**: list per suite, and a step editor for structured actions (navigate, click, fill, assertions…) with inline validation and `⌘S` to save. A Navigate step fails on HTTP 4xx/5xx unless "Allow error status" is ticked.
-- **Test runs**: run history and a live run view — per-test results, expected vs. actual, a step-by-step timeline and the final screenshot in a browser frame.
+- **Test runs**: run history and a live run view — the verdict, per-test results, expected vs. actual, a step timeline with timestamps and the final screenshot in a browser frame.
 
-AI Explorer, Bugs, Reports, Integrations and Settings appear in the sidebar as upcoming.
+AI Explorer, Bugs, Reports, Integrations and Settings are on the roadmap and not in the navigation yet.
 
 ## Stack
 
 | | |
 | --- | --- |
 | Framework | Nuxt 4 (SPA mode), Vue 3, TypeScript |
-| Styling | Tailwind CSS 4, Geist / Geist Mono fonts |
+| Styling | Tailwind CSS 4, IBM Plex Sans / IBM Plex Mono |
+| Animation | Motion for Vue (`motion-v`), on the landing page only |
 | Icons | Lucide |
 | Tooling | pnpm, vue-tsc |
 
@@ -62,8 +63,8 @@ app/
 │   ├── project/    project, environment and suite modals
 │   ├── test-case/  step editor, step row, locator input
 │   ├── run/        status, result bar, browser frame, step timeline, result detail
-│   └── landing/    hero visual
-├── composables/    useAuth, useProjects, useStartRun, usePolling
+│   └── landing/    landing scenes (split-flap, recorder, bug hunt, steps, analysis), run transcript (auth pages)
+├── composables/    useAuth, useProjects, useStartRun, usePolling, usePlayback (landing scene clock)
 ├── middleware/     global auth guard
 ├── plugins/        $api fetch client (cookie session, 401 → sign-in)
 ├── types/          API response types
@@ -77,7 +78,15 @@ app/
 
 ## Design
 
-"AI testing control room": dark charcoal surfaces with hairline borders, one violet/blue accent for AI and focus, and semantic colors reserved for test outcomes (pass, fail, skipped, running). Tokens live in `app/assets/css/main.css` under `@theme`.
+An instrument panel for browser tests: warm graphite surfaces, paper-white text, hairline rules, IBM Plex Sans for the interface and IBM Plex Mono for data (keys, URLs, selectors, timings). A condensed cut of Plex Sans shows verdicts.
+
+- **Color means outcome.** Green passed, red failed, amber error, blue running, gray skipped. Nothing else is colored: primary buttons are paper-white, priority is a level meter, links are underlined.
+- **Results read like a test runner**: inverse `PASS` / `FAIL` tags, ✓ / ✕ marks, and step timestamps (`T+1.33`) in the run timeline.
+- **The logo is a flight-test photo target**, the quadrant mark painted on test aircraft and crash-test dummies.
+- **Motion explains, it doesn't decorate.** Landing scenes run on one clock each (`usePlayback`), play once when they scroll into view and can be replayed. The app itself only animates live state (a running run).
+- Respects `prefers-reduced-motion`: scenes show their final state and the board stops flipping. Form fields use 16px text on phones so iOS doesn't zoom.
+
+Tokens live in `app/assets/css/main.css` under `@theme`.
 
 ## Deployment
 

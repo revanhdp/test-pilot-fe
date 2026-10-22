@@ -30,28 +30,26 @@ async function submit() {
 </script>
 
 <template>
-  <div class="panel p-6 shadow-2xl shadow-black/40">
-    <h1 class="text-lg font-semibold tracking-tight">Sign in</h1>
-    <p class="mt-1 text-[13px] text-fg-muted">Welcome back to the control room.</p>
+  <div>
+    <h1 class="text-2xl font-semibold tracking-[-0.015em]">Sign in</h1>
+    <p class="mt-2 text-[13px] text-fg-muted">
+      New to TestPilot? <NuxtLink to="/register" class="link">Create an account</NuxtLink>
+    </p>
 
-    <p v-if="notice" class="mt-4 rounded-md border border-pass/25 bg-pass/10 px-3 py-2 text-xs text-pass">{{ notice }}</p>
+    <p v-if="notice" class="mt-6 border-l-2 border-pass bg-pass/8 px-3 py-2 text-xs text-pass">{{ notice }}</p>
 
-    <form class="mt-6 space-y-4" @submit.prevent="submit">
+    <form class="mt-8 space-y-4" @submit.prevent="submit">
       <UiField label="Email">
         <UiInput v-model="form.email" type="email" autocomplete="email" required autofocus />
       </UiField>
       <UiField label="Password">
         <UiInput v-model="form.password" type="password" autocomplete="current-password" required />
       </UiField>
-      <div class="flex justify-end">
-        <NuxtLink to="/forgot-password" class="text-xs text-fg-muted hover:text-fg">Forgot password?</NuxtLink>
-      </div>
       <UiAlert :message="error" />
-      <UiButton type="submit" variant="primary" block :loading="loading">Sign in</UiButton>
+      <UiButton type="submit" variant="primary" size="lg" block :loading="loading">Sign in</UiButton>
     </form>
+    <p class="mt-5 text-center">
+      <NuxtLink to="/forgot-password" class="text-xs text-fg-muted hover:text-fg">Forgot your password?</NuxtLink>
+    </p>
   </div>
-  <p class="mt-6 text-center text-[13px] text-fg-muted">
-    New to TestPilot?
-    <NuxtLink to="/register" class="text-accent hover:underline">Create an account</NuxtLink>
-  </p>
 </template>

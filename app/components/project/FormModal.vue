@@ -73,8 +73,8 @@ async function submit() {
           <UiTextarea v-model="form.description" rows="2" placeholder="What is being tested" />
         </UiField>
 
-        <fieldset v-if="!project" class="rounded-lg border border-line p-3.5">
-          <legend class="eyebrow px-1.5">Target website</legend>
+        <fieldset v-if="!project" class="rounded-[5px] border border-line p-3.5">
+          <legend class="caption px-1.5">Target website</legend>
           <div class="space-y-3">
             <UiField
               label="Base URL"

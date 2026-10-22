@@ -6,17 +6,19 @@ import type {
   TestRunStatus,
 } from '~/types/api'
 
-export type Tone = 'pass' | 'fail' | 'warn' | 'skip' | 'run' | 'accent' | 'neutral'
+/** Outcome colors. `neutral` is everything that is not a verdict. */
+export type Tone = 'pass' | 'fail' | 'warn' | 'skip' | 'run' | 'neutral'
 
 type Status = TestRunStatus | TestResultStatus
 
-export const STATUS_META: Record<Status, { label: string; tone: Tone }> = {
-  PENDING: { label: 'Queued', tone: 'neutral' },
-  RUNNING: { label: 'Running', tone: 'run' },
-  PASSED: { label: 'Passed', tone: 'pass' },
-  FAILED: { label: 'Failed', tone: 'fail' },
-  SKIPPED: { label: 'Skipped', tone: 'skip' },
-  ERROR: { label: 'Error', tone: 'warn' },
+/** `tag` is the short, test-runner style label (PASS, FAIL…). */
+export const STATUS_META: Record<Status, { label: string; tag: string; tone: Tone }> = {
+  PENDING: { label: 'Queued', tag: 'QUEUED', tone: 'neutral' },
+  RUNNING: { label: 'Running', tag: 'RUNNING', tone: 'run' },
+  PASSED: { label: 'Passed', tag: 'PASS', tone: 'pass' },
+  FAILED: { label: 'Failed', tag: 'FAIL', tone: 'fail' },
+  SKIPPED: { label: 'Skipped', tag: 'SKIP', tone: 'skip' },
+  ERROR: { label: 'Error', tag: 'ERROR', tone: 'warn' },
 }
 
 export function isActiveStatus(status: Status): boolean {
@@ -24,21 +26,21 @@ export function isActiveStatus(status: Status): boolean {
 }
 
 /** Tailwind classes per tone. Kept literal so Tailwind can see them. */
-export const TONE_CLASSES: Record<Tone, { text: string; bg: string; border: string; dot: string }> = {
-  pass: { text: 'text-pass', bg: 'bg-pass/10', border: 'border-pass/25', dot: 'bg-pass' },
-  fail: { text: 'text-fail', bg: 'bg-fail/10', border: 'border-fail/25', dot: 'bg-fail' },
-  warn: { text: 'text-warn', bg: 'bg-warn/10', border: 'border-warn/25', dot: 'bg-warn' },
-  skip: { text: 'text-skip', bg: 'bg-skip/10', border: 'border-skip/25', dot: 'bg-skip' },
-  run: { text: 'text-run', bg: 'bg-run/10', border: 'border-run/25', dot: 'bg-run' },
-  accent: { text: 'text-accent', bg: 'bg-accent/10', border: 'border-accent/25', dot: 'bg-accent' },
-  neutral: { text: 'text-fg-muted', bg: 'bg-overlay', border: 'border-line-strong', dot: 'bg-fg-subtle' },
+export const TONE_CLASSES: Record<Tone, { text: string; border: string; solid: string }> = {
+  pass: { text: 'text-pass', border: 'border-pass/40', solid: 'bg-pass text-canvas' },
+  fail: { text: 'text-fail', border: 'border-fail/40', solid: 'bg-fail text-canvas' },
+  warn: { text: 'text-warn', border: 'border-warn/40', solid: 'bg-warn text-canvas' },
+  skip: { text: 'text-skip', border: 'border-skip/40', solid: 'bg-skip text-canvas' },
+  run: { text: 'text-run', border: 'border-run/40', solid: 'bg-run text-canvas' },
+  neutral: { text: 'text-fg-muted', border: 'border-line-strong', solid: 'bg-overlay text-fg-muted' },
 }
 
-export const PRIORITY_META: Record<TestPriority, { label: string; tone: Tone }> = {
-  CRITICAL: { label: 'Critical', tone: 'fail' },
-  HIGH: { label: 'High', tone: 'warn' },
-  MEDIUM: { label: 'Medium', tone: 'run' },
-  LOW: { label: 'Low', tone: 'neutral' },
+/** Priority is shown as a level (1–4 bars), not a color: color means outcome. */
+export const PRIORITY_META: Record<TestPriority, { label: string; level: 1 | 2 | 3 | 4 }> = {
+  CRITICAL: { label: 'Critical', level: 4 },
+  HIGH: { label: 'High', level: 3 },
+  MEDIUM: { label: 'Medium', level: 2 },
+  LOW: { label: 'Low', level: 1 },
 }
 
 export const CATEGORY_LABELS: Record<TestCategory, string> = {
@@ -57,9 +59,10 @@ export const ENVIRONMENT_TYPE_LABELS: Record<EnvironmentType, string> = {
   CUSTOM: 'Custom',
 }
 
+/** Production is the one environment worth a caution color. */
 export const ENVIRONMENT_TYPE_TONES: Record<EnvironmentType, Tone> = {
-  DEVELOPMENT: 'run',
-  STAGING: 'accent',
+  DEVELOPMENT: 'neutral',
+  STAGING: 'neutral',
   PRODUCTION: 'warn',
   CUSTOM: 'neutral',
 }

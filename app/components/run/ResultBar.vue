@@ -10,14 +10,14 @@ const segments = computed(() => {
   return [
     { key: 'passed', share: props.passed / total, class: 'bg-pass' },
     { key: 'failed', share: props.failed / total, class: 'bg-fail' },
-    { key: 'skipped', share: props.skipped / total, class: 'bg-skip/70' },
+    { key: 'skipped', share: props.skipped / total, class: 'bg-skip/60' },
   ].filter((segment) => segment.share > 0)
 })
 </script>
 
 <template>
   <div
-    :class="['flex w-full gap-px overflow-hidden rounded-full bg-overlay', height === 'sm' ? 'h-1.5' : 'h-2']"
+    :class="['flex w-full gap-px overflow-hidden bg-overlay', height === 'sm' ? 'h-1' : 'h-1.5']"
     role="img"
     :aria-label="`${passed} passed, ${failed} failed, ${skipped} skipped of ${total}`"
   >

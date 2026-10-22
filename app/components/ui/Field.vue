@@ -10,6 +10,6 @@ defineProps<{ label: string; hint?: string; error?: string | null; optional?: bo
     </span>
     <slot />
     <span v-if="error" class="mt-1.5 block text-xs text-fail">{{ error }}</span>
-    <span v-else-if="hint" class="mt-1.5 block text-xs text-fg-subtle">{{ hint }}</span>
+    <span v-else-if="hint" class="mt-1.5 block text-xs leading-relaxed text-fg-subtle">{{ hint }}</span>
   </label>
 </template>
