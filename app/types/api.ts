@@ -99,6 +99,8 @@ export interface StepInput {
   action: StepAction
   target?: Locator
   value?: string
+  /** Navigate only: don't fail the step when the page answers HTTP 4xx/5xx. */
+  allowErrorStatus?: boolean
 }
 
 /** A stored step. */
@@ -108,6 +110,7 @@ export interface TestStepRecord {
   action: StepAction
   target: Locator | null
   value: string | null
+  options: { allowErrorStatus?: boolean } | null
 }
 
 // ─── Test cases ─────────────────────────────────────────────────────────────

@@ -17,7 +17,7 @@ export const ACTIONS: Record<StepAction, ActionMeta> = {
     group: 'Navigation',
     target: 'none',
     value: { label: 'URL or path', placeholder: '/login', mono: true },
-    hint: 'Paths resolve against the environment base URL. Other origins are blocked.',
+    hint: 'Paths resolve against the environment base URL. Other origins are blocked. The step fails if the page answers HTTP 4xx/5xx.',
   },
   click: { label: 'Click', group: 'Interaction', target: 'required', value: null },
   fill: {
@@ -109,7 +109,11 @@ export function describeStep(step: StepInput): { verb: string; subject: string; 
   const value = step.value ?? ''
   switch (step.action) {
     case 'navigate':
-      return { verb: 'Open', subject: value }
+      return {
+        verb: 'Open',
+        subject: value,
+        detail: step.allowErrorStatus ? '(error status allowed)' : undefined,
+      }
     case 'click':
       return { verb: 'Click', subject: target }
     case 'fill':
@@ -143,6 +147,8 @@ export interface StepDraft {
   action: StepAction
   target: Locator
   value: string
+  /** Navigate only. */
+  allowErrorStatus: boolean
 }
 
 let draftCounter = 0
@@ -154,10 +160,19 @@ export function blankStep(action: StepAction = 'click'): StepDraft {
     action,
     target: { type: action === 'click' ? 'role' : 'label', value: '', name: '' },
     value: '',
+    allowErrorStatus: false,
   }
 }
 
-export function toDraft(step: { action: StepAction; target: Locator | null | undefined; value: string | null | undefined }): StepDraft {
+export function toDraft(step: {
+  action: StepAction
+  target: Locator | null | undefined
+  value: string | null | undefined
+  /** From an editor row. */
+  allowErrorStatus?: boolean
+  /** From a stored step. */
+  options?: { allowErrorStatus?: boolean } | null
+}): StepDraft {
   return {
     key: nextKey(),
     action: step.action,
@@ -165,6 +180,7 @@ export function toDraft(step: { action: StepAction; target: Locator | null | und
       ? { type: step.target.type, value: step.target.value, name: step.target.name ?? '' }
       : { type: 'css', value: '', name: '' },
     value: step.value ?? '',
+    allowErrorStatus: step.allowErrorStatus ?? step.options?.allowErrorStatus ?? false,
   }
 }
 
@@ -181,5 +197,6 @@ export function toStepInput(draft: StepDraft): StepInput {
     }
   }
   if (meta.value) step.value = draft.value
+  if (draft.action === 'navigate' && draft.allowErrorStatus) step.allowErrorStatus = true
   return step
 }

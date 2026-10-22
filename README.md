@@ -10,7 +10,7 @@ Web app for **TestPilot AI**, an AI-powered web application testing platform: a 
 - **Auth**: sign in, register, forgot and reset password.
 - **Overview**: the latest or live run with its browser screenshot, test health across recent runs, recent failures.
 - **Projects**: environments (target base URLs), test suites, recent runs.
-- **Test cases**: list per suite, and a step editor for structured actions (navigate, click, fill, assertions…) with inline validation and `⌘S` to save.
+- **Test cases**: list per suite, and a step editor for structured actions (navigate, click, fill, assertions…) with inline validation and `⌘S` to save. A Navigate step fails on HTTP 4xx/5xx unless "Allow error status" is ticked.
 - **Test runs**: run history and a live run view — per-test results, expected vs. actual, a step-by-step timeline and the final screenshot in a browser frame.
 
 AI Explorer, Bugs, Reports, Integrations and Settings appear in the sidebar as upcoming.

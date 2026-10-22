@@ -49,6 +49,14 @@ const GROUP_ACCENT = {
           class="min-w-[140px] flex-[2_1_160px]"
         />
       </div>
+      <label
+        v-if="step.action === 'navigate'"
+        class="flex w-fit cursor-pointer items-center gap-2 text-xs text-fg-muted md:col-start-2"
+      >
+        <input v-model="step.allowErrorStatus" type="checkbox" class="size-3.5 accent-accent">
+        Allow error status
+        <span class="text-fg-subtle">(don't fail on HTTP 4xx/5xx, e.g. to test a custom 404 page)</span>
+      </label>
       <p v-if="error" class="text-xs text-fail md:col-start-2">{{ error }}</p>
       <p v-else-if="meta.hint" class="text-[11px] text-fg-subtle md:col-start-2">{{ meta.hint }}</p>
     </div>
