@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FolderKanban, ListChecks, Pencil, Play, Plus, Search } from '@lucide/vue'
+import { FolderKanban, KeyRound, ListChecks, Pencil, Play, Plus, Search, Sparkles } from '@lucide/vue'
 import type { Environment, TestCaseListItem, TestSuite } from '~/types/api'
 
 useHead({ title: 'Test cases · TestPilot AI' })
@@ -57,6 +57,8 @@ function openSuite(suite: TestSuite | null) {
 }
 
 const newTestLink = computed(() => ({ path: '/test-cases/new', query: suiteId.value ? { suite: suiteId.value } : {} }))
+const aiTestLink = computed(() => ({ path: '/test-cases/new', query: { ...newTestLink.value.query, ai: '1' } }))
+const ai = useAi()
 </script>
 
 <template>
@@ -65,6 +67,14 @@ const newTestLink = computed(() => ({ path: '/test-cases/new', query: suiteId.va
       <template v-if="current" #actions>
         <UiButton :disabled="!runnableCount || !data?.environments.length" @click="runModal = true">
           <Play /> Run {{ selectedSuite ? 'suite' : 'all' }}
+        </UiButton>
+        <UiButton
+          v-if="ai.available.value"
+          :to="aiTestLink"
+          :disabled="!data?.environments.length"
+          :title="ai.locked.value ? `AI is available again in ${formatWait(ai.secondsLeft.value)}` : undefined"
+        >
+          <Sparkles /> Generate with AI
         </UiButton>
         <UiButton variant="primary" :to="newTestLink"><Plus /> New test case</UiButton>
       </template>
@@ -160,6 +170,7 @@ const newTestLink = computed(() => ({ path: '/test-cases/new', query: suiteId.va
                 <td class="max-w-0 w-full px-2 py-2.5">
                   <div class="flex items-center gap-2">
                     <NuxtLink :to="`/test-cases/${tc.id}`" class="truncate font-medium text-fg" @click.stop>{{ tc.title }}</NuxtLink>
+                    <KeyRound v-if="tc.startSignedIn" class="size-3 shrink-0 text-fg-subtle" aria-label="Starts signed in" role="img" />
                     <UiBadge v-if="tc.status !== 'ACTIVE'">{{ tc.status === 'DRAFT' ? 'Draft' : 'Archived' }}</UiBadge>
                   </div>
                   <p v-if="!suiteId" class="mt-0.5 truncate text-xs text-fg-subtle">{{ tc.suite.name }}</p>

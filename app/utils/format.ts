@@ -81,3 +81,14 @@ export function prettyUrl(url: string | null | undefined): string {
 export function plural(count: number, word: string): string {
   return `${count.toLocaleString()} ${word}${count === 1 ? '' : 's'}`
 }
+
+/** "45 s", "1:13", "14 min", "1 h 2 min": how long to wait, for people. Ticks visibly under ten minutes. */
+export function formatWait(seconds: number): string {
+  const whole = Math.max(Math.ceil(seconds), 1)
+  if (whole < 60) return `${whole} s`
+  if (whole < 600) return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`
+  const minutes = Math.ceil(whole / 60)
+  if (minutes < 60) return `${minutes} min`
+  const hours = Math.floor(minutes / 60)
+  return minutes % 60 ? `${hours} h ${minutes % 60} min` : `${hours} h`
+}

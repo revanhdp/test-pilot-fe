@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowUpRight, Maximize2 } from '@lucide/vue'
+import { ArrowUpRight, KeyRound, Maximize2 } from '@lucide/vue'
 import type { TestResult } from '~/types/api'
 
 const props = defineProps<{ result: TestResult; browser?: string }>()
@@ -85,8 +85,11 @@ const lightbox = ref(false)
       </section>
 
       <section>
-        <div class="mb-2 flex h-5 items-center">
+        <div class="mb-2 flex h-5 items-center gap-3">
           <p class="caption">Steps</p>
+          <p v-if="snapshot.startSignedIn" class="flex items-center gap-1.5 text-xs text-fg-subtle">
+            <KeyRound class="size-3" /> Started signed in, with the run’s session
+          </p>
         </div>
         <RunStepTimeline :steps="snapshot.steps" :outcomes="result.stepResults" />
       </section>

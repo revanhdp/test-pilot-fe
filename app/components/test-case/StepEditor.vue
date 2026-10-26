@@ -4,7 +4,10 @@ import type { StepAction } from '~/types/api'
 import type { StepDraft } from '~/utils/steps'
 
 const steps = defineModel<StepDraft[]>({ required: true })
-defineProps<{ errors?: Record<number, string> }>()
+withDefaults(defineProps<{ errors?: Record<number, string>; title?: string; hint?: string }>(), {
+  title: 'Steps',
+  hint: 'Top to bottom, in a fresh browser context',
+})
 
 const QUICK_ADD: StepAction[] = ['navigate', 'click', 'fill', 'assertText', 'assertVisible', 'assertUrl']
 
@@ -33,9 +36,9 @@ function remove(index: number) {
 <template>
   <section class="panel">
     <div class="panel-header">
-      <h2 class="panel-title">Steps</h2>
+      <h2 class="panel-title">{{ title }}</h2>
       <span class="font-mono text-[11px] text-fg-subtle">{{ steps.length }}</span>
-      <p class="ml-auto hidden text-xs text-fg-subtle sm:block">Top to bottom, in a fresh browser context</p>
+      <p class="ml-auto hidden text-xs text-fg-subtle sm:block">{{ hint }}</p>
     </div>
 
     <ol v-if="steps.length" class="divide-y divide-line">

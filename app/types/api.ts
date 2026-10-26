@@ -49,6 +49,8 @@ export interface Environment {
   name: string
   baseUrl: string
   type: EnvironmentType
+  /** Performed once per run for the tests that start signed in. */
+  signInSteps: StepInput[] | null
   createdAt: string
   updatedAt: string
 }
@@ -126,6 +128,8 @@ interface TestCaseBase {
   category: TestCategory
   expectedResult: string | null
   status: TestCaseStatus
+  /** Begins with the session left by the environment's sign-in steps. */
+  startSignedIn: boolean
   createdAt: string
   updatedAt: string
   suite: { id: string; name: string }
@@ -190,7 +194,19 @@ export interface TestCaseSnapshot {
   priority: TestPriority
   category: TestCategory
   expectedResult: string | null
+  /** Absent on runs created before sign-in existed. */
+  startSignedIn?: boolean
   steps: (StepInput & { order: number })[]
+}
+
+/** The run's sign-in steps (typed values redacted) and how they went. */
+export interface RunSignIn {
+  steps: (StepInput & { order: number })[]
+  status?: 'PASSED' | 'FAILED' | 'ERROR'
+  durationMs?: number
+  errorMessage?: string | null
+  failedStep?: number | null
+  stepResults?: StepOutcome[]
 }
 
 export interface StepOutcome {
@@ -222,6 +238,8 @@ export interface TestResult {
 export interface TestRunDetail extends TestRun {
   project: { id: string; name: string }
   triggeredBy: { id: string; name: string } | null
+  /** Present when tests of the run started signed in. */
+  signIn: RunSignIn | null
   results: TestResult[]
 }
 
@@ -284,4 +302,44 @@ export interface ApiErrorBody {
   statusCode: number
   message: string | string[]
   issues?: { path: string; message: string }[]
+  /** Set by AI endpoints. */
+  code?: AiErrorCode
+  /** Seconds until retrying can work, on quota and rate-limit errors. */
+  retryAfterSeconds?: number
+}
+
+// ─── AI ─────────────────────────────────────────────────────────────────────
+
+export type AiErrorCode =
+  | 'AI_NOT_CONFIGURED'
+  | 'AI_QUOTA_EXHAUSTED'
+  | 'AI_USER_LIMIT'
+  | 'AI_PROVIDER_ERROR'
+  | 'AI_BAD_OUTPUT'
+  | 'AI_PAGE_UNREACHABLE'
+
+export interface AiStatus {
+  enabled: boolean
+  provider: string
+  model: string
+  generationsPerHour: number
+}
+
+export interface GenerateTestInput {
+  environmentId: string
+  goal: string
+  path: string
+}
+
+/** A proposed test. Nothing is saved until the user saves it. */
+export interface GeneratedTest {
+  title: string
+  expectedResult: string
+  steps: StepInput[]
+  page: { url: string; title: string | null; status: number | null }
+  /** The assertions were rewritten after seeing the page the actions lead to. */
+  refined: boolean
+  warnings: string[]
+  model: string
+  usage: { inputTokens: number; outputTokens: number }
 }

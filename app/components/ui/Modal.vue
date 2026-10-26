@@ -2,7 +2,7 @@
 import { X } from '@lucide/vue'
 
 const open = defineModel<boolean>('open', { required: true })
-withDefaults(defineProps<{ title: string; description?: string; width?: 'sm' | 'md' | 'lg' }>(), {
+withDefaults(defineProps<{ title: string; description?: string; width?: 'sm' | 'md' | 'lg' | 'xl' }>(), {
   width: 'md',
 })
 
@@ -46,7 +46,7 @@ watch(open, async (isOpen) => {
           :aria-label="title"
           :class="[
             'panel w-full border-line-strong shadow-[0_24px_64px_-24px_rgb(0_0_0/0.8)]',
-            { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl' }[width],
+            { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' }[width],
           ]"
         >
           <div class="flex items-start gap-3 border-b border-line px-5 py-4">

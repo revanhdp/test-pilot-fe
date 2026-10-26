@@ -40,6 +40,7 @@ async function onSaved(testCase: TestCaseDetail) {
     :suites="data.suites"
     :environments="data.environments"
     :default-suite-id="defaultSuiteId"
+    :open-ai="route.query.ai === '1'"
     @saved="onSaved"
   />
 </template>

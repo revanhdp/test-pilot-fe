@@ -42,6 +42,19 @@ const completed = computed(() =>
 )
 
 const rerunnable = computed(() => run.value?.results.filter((r) => r.testCaseId).map((r) => r.testCaseId!) ?? [])
+
+/** The run's one sign-in, when tests started signed in. */
+const signIn = computed(() => {
+  const s = run.value?.signIn
+  if (!s) return null
+  const failedStep = s.steps.find((step) => step.order === s.failedStep)
+  return {
+    ...s,
+    icon: s.status ?? (active.value ? 'RUNNING' : 'PENDING'),
+    reusedBy: run.value!.results.filter((r) => r.testCaseSnapshot.startSignedIn).length,
+    failedAt: failedStep ? describeStep(failedStep) : null,
+  } as const
+})
 function rerun() {
   if (!run.value?.environmentId) return
   void start({ environmentId: run.value.environmentId, testCaseIds: rerunnable.value })
@@ -115,6 +128,23 @@ function rerun() {
       <div v-if="run.errorMessage" class="border-t border-warn/25 bg-warn/6 px-5 py-2.5 text-xs text-warn">
         {{ run.errorMessage }}
       </div>
+      <details v-if="signIn" :class="['group border-t text-xs', signIn.status === 'FAILED' || signIn.status === 'ERROR' ? 'border-fail/25 bg-fail/6' : 'border-line']">
+        <summary class="flex cursor-pointer list-none items-center gap-2.5 px-5 py-2.5 [&::-webkit-details-marker]:hidden">
+          <RunStatusIcon :status="signIn.icon" size="sm" />
+          <span v-if="!signIn.status" class="text-fg-muted">Signing in…</span>
+          <span v-else-if="signIn.status === 'PASSED'" class="text-fg-muted">
+            Signed in once in {{ formatDuration(signIn.durationMs) }} · session reused by {{ plural(signIn.reusedBy, 'test') }}
+          </span>
+          <span v-else class="min-w-0 flex-1 truncate text-fail">
+            Sign-in failed<template v-if="signIn.failedAt"> at step {{ signIn.failedStep }} ({{ signIn.failedAt.verb }} {{ signIn.failedAt.subject }})</template>: {{ signIn.errorMessage?.split('\n')[0] }}
+          </span>
+          <span class="ml-auto shrink-0 text-fg-subtle group-open:hidden">Show steps</span>
+          <span class="ml-auto hidden shrink-0 text-fg-subtle group-open:inline">Hide steps</span>
+        </summary>
+        <div class="px-5 pb-4">
+          <RunStepTimeline :steps="signIn.steps" :outcomes="signIn.stepResults ?? null" />
+        </div>
+      </details>
     </section>
 
     <!-- Results + detail -->

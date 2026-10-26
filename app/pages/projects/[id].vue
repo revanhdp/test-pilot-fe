@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowRight, ListChecks, Pencil, Play, Plus, Trash } from '@lucide/vue'
+import { ArrowRight, KeyRound, ListChecks, Pencil, Play, Plus, Trash } from '@lucide/vue'
 import type { Environment, ProjectDetail, TestRunListItem, TestSuite } from '~/types/api'
 
 const route = useRoute()
@@ -26,6 +26,8 @@ const editingProject = ref(false)
 const deletingProject = ref(false)
 const envModal = ref(false)
 const editingEnv = ref<Environment | null>(null)
+const signInModal = ref(false)
+const signInEnv = ref<Environment | null>(null)
 const suiteModal = ref(false)
 const editingSuite = ref<TestSuite | null>(null)
 const runModal = ref(false)
@@ -36,6 +38,10 @@ const actionError = ref<string | null>(null)
 function openEnv(env: Environment | null) {
   editingEnv.value = env
   envModal.value = true
+}
+function openSignIn(env: Environment) {
+  signInEnv.value = env
+  signInModal.value = true
 }
 function openSuite(suite: TestSuite | null) {
   editingSuite.value = suite
@@ -118,6 +124,14 @@ const pendingOpen = computed({
                 <UiBadge :tone="ENVIRONMENT_TYPE_TONES[env.type]">{{ ENVIRONMENT_TYPE_LABELS[env.type] }}</UiBadge>
               </p>
               <a :href="env.baseUrl" target="_blank" rel="noopener noreferrer" class="mt-0.5 block truncate font-mono text-xs text-fg-subtle hover:text-fg hover:underline">{{ env.baseUrl }}</a>
+              <button
+                type="button"
+                :class="['mt-1.5 flex items-center gap-1.5 text-xs hover:text-fg', env.signInSteps?.length ? 'text-fg-muted' : 'text-fg-subtle']"
+                @click="openSignIn(env)"
+              >
+                <KeyRound class="size-3" />
+                {{ env.signInSteps?.length ? `Signs in · ${plural(env.signInSteps.length, 'step')}` : 'Add sign-in' }}
+              </button>
             </div>
             <div class="flex gap-0.5 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
               <UiButton size="xs" variant="ghost" aria-label="Edit environment" @click="openEnv(env)"><Pencil /></UiButton>
@@ -189,6 +203,7 @@ const pendingOpen = computed({
 
     <ProjectFormModal v-model:open="editingProject" :project="project" @saved="afterChange" />
     <ProjectEnvironmentModal v-model:open="envModal" :project-id="project.id" :environment="editingEnv" @saved="afterChange" />
+    <ProjectSignInModal v-model:open="signInModal" :environment="signInEnv" @saved="afterChange" />
     <ProjectSuiteModal v-model:open="suiteModal" :project-id="project.id" :suite="editingSuite" @saved="afterChange" />
     <RunStartModal v-model:open="runModal" :environments="project.environments" :scope-label="`All suites in ${project.name}`" :test-count="activeTests" />
     <UiConfirmModal

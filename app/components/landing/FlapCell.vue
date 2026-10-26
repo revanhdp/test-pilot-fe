@@ -1,15 +1,19 @@
 <script setup lang="ts">
+import { useReducedMotion } from 'motion-v'
+
 /**
  * One split-flap cell, as on an airport departure board. When `char` changes
- * the cell flips through a few random characters before landing on it: the
- * old top half folds down while the new bottom half unfolds behind it.
+ * the cell flips through a few random `glyphs` before landing on it: the old
+ * top half folds down while the new bottom half unfolds behind it. With
+ * reduced motion it just changes.
  */
-const props = withDefaults(defineProps<{ char: string; delay?: number; spins?: number }>(), {
+const props = withDefaults(defineProps<{ char: string; delay?: number; spins?: number; glyphs?: string }>(), {
   delay: 0,
   spins: 3,
+  glyphs: 'abcdefghijklmnopqrstuvwxyz-.',
 })
 
-const GLYPHS = 'abcdefghijklmnopqrstuvwxyz-.'
+const reduced = useReducedMotion()
 /** Duration of one half of a flip; a full flip is twice this. */
 const HALF_MS = 65
 
@@ -25,7 +29,11 @@ watch(
   () => props.char,
   (target) => {
     clear()
-    const randoms = Array.from({ length: props.spins }, () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)]!)
+    if (reduced.value) {
+      current.value = next.value = target
+      return
+    }
+    const randoms = Array.from({ length: props.spins }, () => props.glyphs[Math.floor(Math.random() * props.glyphs.length)]!)
     let at = props.delay
     for (const glyph of [...randoms, target]) {
       timers.push(setTimeout(() => {

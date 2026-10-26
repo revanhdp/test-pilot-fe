@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Play, Save, Trash } from '@lucide/vue'
+import { Play, Save, Sparkles, Trash, X } from '@lucide/vue'
 import type {
   Environment,
+  GeneratedTest,
   TestCaseDetail,
   TestCaseStatus,
   TestCategory,
@@ -15,11 +16,38 @@ const props = defineProps<{
   environments: Environment[]
   testCase?: TestCaseDetail
   defaultSuiteId?: string
+  /** Open the "Generate with AI" dialog as soon as the editor appears. */
+  openAi?: boolean
 }>()
 const emit = defineEmits<{ saved: [testCase: TestCaseDetail] }>()
 
 const { $api } = useNuxtApp()
 const { start, starting, error: runError } = useStartRun()
+const ai = useAi()
+
+// ─── AI draft ───────────────────────────────────────────────────────────────
+
+const generateOpen = ref(false)
+/** What the current steps came from, until the user dismisses the notice. */
+const aiDraft = ref<{ goal: string; path: string; draft: GeneratedTest } | null>(null)
+
+function applyDraft(draft: GeneratedTest, input: { goal: string; path: string }) {
+  form.title = draft.title
+  form.expectedResult = draft.expectedResult
+  form.description = form.description || `Generated from: ${input.goal}`
+  // A draft stays out of suite runs until a person has reviewed it.
+  form.status = 'DRAFT'
+  steps.value = draft.steps.map((step) => toDraft({ ...step, target: step.target ?? null, value: step.value ?? null }))
+  aiDraft.value = { ...input, draft }
+}
+
+const hasSteps = computed(() => steps.value.some((step) => step.value.trim() || step.target.value.trim()))
+onMounted(() => {
+  if (props.openAi && !props.testCase && ai.available.value) generateOpen.value = true
+})
+watch(ai.available, (ready) => {
+  if (ready && props.openAi && !props.testCase && !hasSteps.value && !aiDraft.value) generateOpen.value = true
+})
 
 // ─── Form state ─────────────────────────────────────────────────────────────
 
@@ -30,6 +58,7 @@ const form = reactive({
   priority: props.testCase?.priority ?? ('MEDIUM' as TestPriority),
   category: props.testCase?.category ?? ('FUNCTIONAL' as TestCategory),
   status: props.testCase?.status ?? ('ACTIVE' as TestCaseStatus),
+  startSignedIn: props.testCase?.startSignedIn ?? false,
   expectedResult: props.testCase?.expectedResult ?? '',
 })
 const steps = ref(props.testCase ? props.testCase.steps.map(toDraft) : [blankStep('navigate')])
@@ -99,6 +128,16 @@ onBeforeRouteLeave(() => {
 
 const environmentId = ref(props.environments[0]?.id ?? '')
 
+/** "Start signed in" needs sign-in steps on the environment the test runs against. */
+const signInMissing = computed(() => {
+  if (!form.startSignedIn) return null
+  if (props.testCase) {
+    const env = props.environments.find((e) => e.id === environmentId.value)
+    return env && !env.signInSteps?.length ? `“${env.name}” has no sign-in steps yet.` : null
+  }
+  return props.environments.some((e) => e.signInSteps?.length) ? null : 'No environment of this project has sign-in steps yet.'
+})
+
 async function run() {
   if (!props.testCase) return
   if (dirty.value && !(await save())) return
@@ -153,6 +192,14 @@ const statusOptions = [
       <template #actions>
         <span v-if="testCase && dirty" class="flex items-center gap-1.5 text-xs text-warn"><span class="size-1.5 rounded-full bg-warn" /> Unsaved changes</span>
         <UiButton v-if="testCase" variant="ghost" @click="confirmDelete = true"><Trash /> Delete</UiButton>
+        <UiButton
+          v-if="!testCase"
+          :disabled="!environments.length || (ai.status.value ? !ai.available.value : false)"
+          :title="!environments.length ? 'Add an environment to this project first' : (ai.unavailableReason.value ?? undefined)"
+          @click="generateOpen = true"
+        >
+          <Sparkles /> Generate with AI
+        </UiButton>
         <UiButton variant="primary" :loading="saving" :disabled="!dirty" @click="save">
           <Save v-if="!saving" /> {{ testCase ? 'Save' : 'Create test case' }}
           <kbd class="ml-1 hidden font-mono text-[10px] opacity-55 sm:inline">⌘S</kbd>
@@ -163,6 +210,28 @@ const statusOptions = [
     <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
       <div class="min-w-0 space-y-5">
         <UiAlert :message="formError" />
+
+        <!-- A draft from the model: say what it is, and what to check before trusting it. -->
+        <section v-if="aiDraft" class="panel border-line-strong">
+          <div class="flex items-start gap-3 px-4 py-3">
+            <Sparkles class="mt-0.5 size-4 shrink-0 text-fg-muted" />
+            <div class="min-w-0 flex-1 text-[13px] leading-relaxed">
+              <p class="font-medium">AI draft. Review it before you run it.</p>
+              <p class="mt-0.5 text-fg-muted">
+                From “{{ aiDraft.goal }}” on <span class="font-mono text-xs">{{ aiDraft.path }}</span>, by {{ aiDraft.draft.model }}.
+                It is saved as a draft and stays out of suite runs until you set it to Active.
+              </p>
+              <ul class="mt-2 space-y-1 text-xs text-fg-muted">
+                <li v-if="aiDraft.draft.refined">The assertions were checked against the page the steps lead to. Make sure they match what <em>should</em> happen, not only what the page does.</li>
+                <li v-for="warning in aiDraft.draft.warnings" :key="warning" class="text-warn">{{ warning }}</li>
+                <li>The browser decides pass or fail. A test that passes only proves what its assertions check.</li>
+              </ul>
+            </div>
+            <button type="button" class="rounded-[4px] p-1 text-fg-subtle hover:bg-raised hover:text-fg" aria-label="Dismiss" @click="aiDraft = null">
+              <X class="size-3.5" />
+            </button>
+          </div>
+        </section>
 
         <section class="panel space-y-4 p-4">
           <UiField label="Title" :error="errors.title">
@@ -215,6 +284,21 @@ const statusOptions = [
           <UiField label="Status">
             <UiSelect v-model="form.status" :options="statusOptions" />
           </UiField>
+          <div>
+            <label class="flex cursor-pointer items-start gap-2.5">
+              <input v-model="form.startSignedIn" type="checkbox" class="mt-0.5 size-3.5 shrink-0">
+              <span>
+                <span class="block text-xs font-medium text-fg-muted">Start signed in</span>
+                <span class="mt-0.5 block text-xs leading-relaxed text-fg-subtle">
+                  Begins with the session from the environment’s sign-in steps, performed once per run. Leave off to test the sign-in page itself.
+                </span>
+              </span>
+            </label>
+            <p v-if="signInMissing" class="mt-2 ml-6 text-xs leading-relaxed text-warn">
+              {{ signInMissing }}
+              <NuxtLink :to="`/projects/${projectId}`" class="link">Add them on the project page</NuxtLink>
+            </p>
+          </div>
           <UiField label="Expected result" optional hint="Shown next to the actual result when the test fails." :error="errors.expectedResult">
             <UiTextarea v-model="form.expectedResult" rows="3" placeholder="An error message is shown and the user stays on the page." />
           </UiField>
@@ -236,6 +320,15 @@ const statusOptions = [
         </section>
       </aside>
     </div>
+
+    <TestCaseGenerateModal
+      v-if="!testCase"
+      v-model:open="generateOpen"
+      :environments="environments"
+      :default-environment-id="environmentId"
+      :replaces-steps="hasSteps"
+      @generated="applyDraft"
+    />
 
     <UiConfirmModal
       v-model:open="confirmDelete"

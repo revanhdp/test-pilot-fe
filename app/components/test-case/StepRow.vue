@@ -7,6 +7,8 @@ defineProps<{ index: number; isFirst: boolean; isLast: boolean; error?: string }
 defineEmits<{ move: [delta: -1 | 1]; duplicate: []; remove: [] }>()
 
 const meta = computed(() => ACTIONS[step.value.action])
+/** Typed passwords stay masked in the editor. */
+const secret = computed(() => isSecretFill(step.value))
 const actionGroups = ACTION_GROUPS.map(({ group, actions }) => ({
   label: group,
   options: actions.map((action) => ({ value: action, label: ACTIONS[action].label })),
@@ -22,7 +24,7 @@ const TOOL =
     <span class="mt-[7px] w-5 shrink-0 font-mono text-[11px] text-fg-subtle tabular-nums">{{ String(index + 1).padStart(2, '0') }}</span>
 
     <div class="grid min-w-0 flex-1 gap-x-2 gap-y-1.5 md:grid-cols-[148px_minmax(0,1fr)]">
-      <UiSelect v-model="step.action" :groups="actionGroups" size="sm" aria-label="Action" />
+      <UiSelect v-model="step.action" :groups="actionGroups" size="sm" aria-label="Action" class="self-start" />
       <div class="flex min-w-0 flex-wrap gap-1.5">
         <TestCaseLocatorInput
           v-if="meta.target !== 'none'"
@@ -35,7 +37,8 @@ const TOOL =
           v-if="meta.value"
           v-model="step.value"
           size="sm"
-          :type="meta.value.type ?? 'text'"
+          :type="secret ? 'password' : (meta.value.type ?? 'text')"
+          :autocomplete="secret ? 'new-password' : undefined"
           :mono="meta.value.mono"
           :placeholder="meta.value.placeholder"
           :aria-label="meta.value.label"

@@ -103,10 +103,15 @@ export function describeLocator(locator: Locator | null | undefined): string {
   }
 }
 
-/** One-line, human description of a step for timelines. */
+/** A fill step into a field that looks like a password. */
+export function isSecretFill(step: Pick<StepInput, 'action' | 'target'>): boolean {
+  return step.action === 'fill' && /pass/i.test(`${step.target?.value ?? ''} ${step.target?.name ?? ''}`)
+}
+
+/** One-line, human description of a step for timelines. Typed passwords are masked. */
 export function describeStep(step: StepInput): { verb: string; subject: string; detail?: string } {
   const target = describeLocator(step.target)
-  const value = step.value ?? ''
+  const value = isSecretFill(step) ? '••••••' : (step.value ?? '')
   switch (step.action) {
     case 'navigate':
       return {

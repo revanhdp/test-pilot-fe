@@ -46,8 +46,9 @@ const specSequence = { hidden: {}, visible: { transition: { delayChildren: stagg
           <nav class="hidden gap-6 text-[13px] text-fg-muted md:flex">
             <a href="#how-it-works" class="hover:text-fg">How it works</a>
             <a href="#bug-hunt" class="hover:text-fg">Bug hunt</a>
-            <a href="#steps" class="hover:text-fg">Steps</a>
             <a href="#engine" class="hover:text-fg">The engine</a>
+            <a href="#pricing" class="hover:text-fg">Pricing</a>
+            <a href="#faq" class="hover:text-fg">FAQ</a>
           </nav>
           <div class="ml-auto flex items-center gap-2">
             <UiButton v-if="!user" variant="ghost" to="/login">Sign in</UiButton>
@@ -167,6 +168,34 @@ const specSequence = { hidden: {}, visible: { transition: { delayChildren: stagg
               <dd class="text-[14px] leading-relaxed">{{ row.detail }}</dd>
             </motion.div>
           </motion.dl>
+        </div>
+      </section>
+
+      <!-- Pricing -->
+      <section id="pricing" class="scroll-mt-16 border-t border-line">
+        <div class="mx-auto max-w-[1200px] px-6 py-20 lg:py-28">
+          <LandingReveal class="max-w-2xl">
+            <h2 class="text-[clamp(1.75rem,3.5vw,2.5rem)] leading-[1.05] font-semibold tracking-[-0.025em]">Priced by test runs, not by seats.</h2>
+            <p class="mt-5 max-w-[56ch] text-[15px] leading-relaxed text-fg-muted">
+              Every plan runs the same engine and keeps the same evidence. Plans differ in how much you run and how long results are kept.
+            </p>
+          </LandingReveal>
+          <LandingReveal :delay="0.1" class="mt-10">
+            <LandingPricing />
+          </LandingReveal>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" class="scroll-mt-16 border-t border-line">
+        <div class="mx-auto grid max-w-[1200px] gap-x-16 gap-y-8 px-6 py-20 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:py-28">
+          <LandingReveal>
+            <h2 class="text-[clamp(1.75rem,3.5vw,2.5rem)] leading-[1.05] font-semibold tracking-[-0.025em]">Questions</h2>
+            <p class="mt-5 max-w-[34ch] text-[15px] leading-relaxed text-fg-muted">What people ask before pointing it at their own site.</p>
+          </LandingReveal>
+          <LandingReveal :delay="0.1">
+            <LandingFaq />
+          </LandingReveal>
         </div>
       </section>
 
