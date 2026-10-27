@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { FolderKanban, LayoutDashboard, ListChecks, LogOut, Workflow } from '@lucide/vue'
+import { FolderKanban, LayoutDashboard, ListChecks, LogOut, Settings, Workflow } from '@lucide/vue'
 
 defineEmits<{ navigate: [] }>()
 
 const { user, logout } = useAuth()
+const { $clerk } = useNuxtApp()
 const route = useRoute()
 const isActive = (to: string) => route.path === to || route.path.startsWith(`${to}/`)
 
@@ -53,6 +54,15 @@ const nav = [
         <span class="block truncate text-[13px] font-medium">{{ user?.name }}</span>
         <span class="block truncate text-[11px] text-fg-subtle">{{ user?.email }}</span>
       </span>
+      <button
+        type="button"
+        class="rounded-[4px] p-1.5 text-fg-subtle hover:bg-raised hover:text-fg"
+        aria-label="Account settings"
+        title="Account settings"
+        @click="$clerk.openUserProfile()"
+      >
+        <Settings class="size-3.5" />
+      </button>
       <button
         type="button"
         class="rounded-[4px] p-1.5 text-fg-subtle hover:bg-raised hover:text-fg"

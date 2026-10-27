@@ -71,12 +71,11 @@ const lightbox = ref(false)
         </div>
         <RunBrowserFrame :url="result.finalUrl" :title="result.pageTitle" :browser="browser" :live="result.status === 'RUNNING'">
           <button v-if="screenshot" type="button" class="block size-full cursor-zoom-in" @click="lightbox = true">
-            <img
-              :src="`/api/artifacts/${screenshot.id}/file`"
+            <RunArtifactImage
+              :id="screenshot.id"
               :alt="`Screenshot of ${result.finalUrl ?? 'the page'} after ${snapshot.key}`"
               class="size-full object-cover object-top"
-              loading="lazy"
-            >
+            />
           </button>
           <div v-else class="absolute inset-0 flex items-center justify-center font-mono text-xs text-fg-subtle">
             {{ result.status === 'RUNNING' ? 'Executing in Chromium…' : result.status === 'PENDING' ? 'Waiting to run' : 'No screenshot captured' }}
@@ -96,7 +95,7 @@ const lightbox = ref(false)
     </div>
 
     <UiModal v-if="screenshot" v-model:open="lightbox" :title="`${snapshot.key} — final state`" :description="result.finalUrl ?? undefined" width="lg">
-      <img :src="`/api/artifacts/${screenshot.id}/file`" alt="" class="w-full rounded-b-[6px]">
+      <RunArtifactImage :id="screenshot.id" class="w-full rounded-b-[6px]" />
     </UiModal>
   </div>
 </template>

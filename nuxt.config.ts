@@ -12,6 +12,16 @@ export default defineNuxtConfig({
 
   devtools: { enabled: false },
 
+  runtimeConfig: {
+    public: {
+      // Set NUXT_PUBLIC_CLERK_PUBLISHABLE_KEY and NUXT_PUBLIC_API_BASE (build time for `nuxt generate`).
+      clerkPublishableKey: '',
+      // Origin of the API when it is not served next to the web app (e.g.
+      // https://api.example.com). Empty: same origin, `/api` goes through Nginx.
+      apiBase: '',
+    },
+  },
+
   css: [
     // Weight and width axes: the width axis gives the condensed display cut.
     '@fontsource-variable/ibm-plex-sans/wdth.css',
@@ -23,6 +33,9 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    optimizeDeps: {
+      include: ['@clerk/clerk-js', '@clerk/ui/entry', '@clerk/ui/themes'],
+    },
   },
 
   app: {
@@ -42,7 +55,7 @@ export default defineNuxtConfig({
   },
 
   // Same-origin API in development, mirroring the Nginx setup in production,
-  // so the session cookie stays first-party.
+  // so the browser never needs CORS in development.
   nitro: {
     devProxy: {
       '/api': { target: `${apiTarget}/api`, changeOrigin: true },

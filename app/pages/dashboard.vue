@@ -90,12 +90,12 @@ const summary = computed(() => {
           <div v-if="focusRun" class="grid gap-6 p-5 lg:grid-cols-[minmax(0,1fr)_300px]">
             <div class="min-w-0">
               <RunBrowserFrame :url="spotlight?.finalUrl ?? focusRun.baseUrl" :title="spotlight?.pageTitle" :browser="focusRun.browser" :live="live">
-                <img
+                <RunArtifactImage
                   v-if="spotlightShot"
-                  :src="`/api/artifacts/${spotlightShot.id}/file`"
+                  :id="spotlightShot.id"
                   :alt="`Final state of ${spotlight?.testCaseSnapshot.key}`"
                   class="size-full object-cover object-top"
-                >
+                />
                 <div v-else class="absolute inset-0 flex items-center justify-center font-mono text-xs text-fg-subtle">
                   {{ live ? `Executing ${spotlight?.testCaseSnapshot.key ?? ''}…` : 'No screenshot' }}
                 </div>

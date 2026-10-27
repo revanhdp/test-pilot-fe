@@ -1,40 +1,42 @@
 import type { User } from '~/types/api'
 
+/**
+ * The signed-in user. Sign-in, sign-up and password flows are Clerk's; the
+ * API returns the matching local user (created on first request).
+ */
 export function useAuth() {
-  const { $api } = useNuxtApp()
+  const { $api, $clerk } = useNuxtApp()
   const user = useState<User | null>('auth:user', () => null)
   const loaded = useState('auth:loaded', () => false)
 
-  /** Loads the session once per app load. */
+  /** Loads the user once per app load. */
   async function fetchUser(): Promise<User | null> {
     if (loaded.value) return user.value
-    try {
-      user.value = (await $api<{ user: User | null }>('/auth/me')).user
-    } catch {
+    if (!$clerk.session) {
       user.value = null
+    } else {
+      try {
+        user.value = (await $api<{ user: User }>('/auth/me')).user
+      } catch {
+        user.value = null
+      }
     }
     loaded.value = true
     return user.value
   }
 
-  async function login(input: { email: string; password: string }) {
-    const res = await $api<{ user: User }>('/auth/login', { method: 'POST', body: input })
-    user.value = res.user
-    loaded.value = true
-  }
-
-  async function register(input: { name: string; email: string; password: string }) {
-    const res = await $api<{ user: User }>('/auth/register', { method: 'POST', body: input })
-    user.value = res.user
-    loaded.value = true
+  /** Call after Clerk finishes a sign-in so the next navigation sees the new user. */
+  function reset() {
+    loaded.value = false
+    user.value = null
   }
 
   async function logout() {
-    await $api('/auth/logout', { method: 'POST' }).catch(() => undefined)
-    user.value = null
+    await $clerk.signOut().catch(() => undefined)
+    reset()
     clearNuxtState(['projects', 'currentProjectId'])
     await navigateTo('/login')
   }
 
-  return { user, loaded, fetchUser, login, register, logout }
+  return { user, loaded, fetchUser, reset, logout }
 }

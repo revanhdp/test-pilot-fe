@@ -7,7 +7,7 @@ Web app for **TestPilot AI**, an AI-powered web application testing platform: wr
 ## Features
 
 - **Landing page**: a split-flap "departure board" headline, then scenes that play when scrolled into view: one failing test played back from the agent to the bug report, a replay of the demo Bug Hunt run with its real failure messages, steps executing in sync with their JSON, a streamed failure analysis, a datasheet of what the engine does today, pricing (monthly/yearly) and an FAQ. Deep links such as `/#pricing` work on a fresh load.
-- **Auth**: sign in, register, forgot and reset password.
+- **Auth**: sign in and sign up through [Clerk](https://clerk.com) (prebuilt components, password reset included).
 - **Overview**: the latest or live run with its verdict and browser screenshot, test health across recent runs, recent failures.
 - **Projects**: environments (target base URLs, plus optional sign-in steps performed once per run), test suites, recent runs.
 - **Test cases**: list per suite, and a step editor for structured actions (navigate, click, fill, assertions…) with inline validation and `⌘S` to save. **Generate with AI** (new test case, or the button on the list) turns a goal into a draft: the goal, environment and starting page go to the API, and the steps come back into the editor as a **draft** (status Draft, with a notice) for you to review. Nothing is saved or run until you do it, and the browser still decides pass or fail. When the free AI quota (or the hourly cap) is used up, the dialog says so with a countdown and stays locked until the wait is over; it never retries or switches provider. A Navigate step fails on HTTP 4xx/5xx unless "Allow error status" is ticked. "Start signed in" begins a test with the session from its environment's sign-in steps; password fields stay masked.
@@ -31,10 +31,13 @@ Requirements: Node 22+, pnpm 11, and the [API](https://github.com/revanhdp/test-
 
 ```bash
 pnpm install
-pnpm dev          # http://localhost:4000
+cp .env.example .env     # set NUXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+pnpm dev                # http://localhost:4000
 ```
 
-During development Nuxt proxies `/api` to the API, so the session cookie stays first-party (the same shape as Nginx in production). If the API runs elsewhere:
+The API needs the matching `CLERK_SECRET_KEY`. In the Clerk dashboard, allow `http://localhost:4000` as an origin. For `pnpm build`, set the publishable key at build time.
+
+During development Nuxt proxies `/api` to the API, so Clerk's `__session` cookie reaches the API (the same shape as Nginx in production). If the API runs elsewhere:
 
 ```bash
 API_PROXY_TARGET=http://localhost:5001 pnpm dev
@@ -66,7 +69,7 @@ app/
 │   └── landing/    landing scenes (split-flap, recorder, bug hunt, steps, analysis), run transcript (auth pages)
 ├── composables/    useAuth, useProjects, useStartRun, usePolling, useAi (AI status, generate, quota lock), usePlayback (landing scene clock)
 ├── middleware/     global auth guard
-├── plugins/        $api fetch client (cookie session, 401 → sign-in)
+├── plugins/        $clerk (Clerk client), $api fetch client (Bearer token, 401 → sign-in)
 ├── types/          API response types
 ├── utils/          formatting, status metadata, step metadata, error helpers
 └── assets/css/     Tailwind theme and design tokens
